@@ -1,4 +1,4 @@
-from math import acos, asin, atan, cos, exp, factorial, log, sin, tan
+from math import acos, asin, atan, cos, exp, factorial, gcd, log, sin, tan
 from cmath import acos as cacos, asin as casin, atan as catan, cos as ccos, exp as cexp, log as clog, sin as csin, tan as ctan
 from random import random
 from time import sleep
@@ -8,7 +8,7 @@ from _tkinter import TclError
 
 digits = '0123456789'
 keys = [
-	['~', 'sqrt', 'square', '^', '←', '', '', 'abs'],
+	['~', 'sqrt', 'square', '^', '←', '', '', 'abs', 'gcd'],
 	['7', '8', '9', '/', '', ';', 'not', 'rand', 'ln'],
 	['4', '5', '6', '*', '', '$', 'and', '!', 'sin', 'asin'],
 	['1', '2', '3', '-', '', '@', 'or', 'exp', 'cos', 'acos'],
@@ -165,6 +165,12 @@ def numpad(n: str):
 			stack[-1] = exp(stack[-1])
 		else:
 			error('OverflowError')
+	elif n == 'gcd':
+		if 1 < len(stack):
+			if isinstance(sum(stack[-2:]), int):
+				stack.append(gcd(stack.pop(), stack.pop()))
+			else:
+				error('DomainError')
 	elif n == 'ln':
 		if stack[-1].imag or stack[-1] < 0:
 			stack[-1] = clog(stack[-1])
