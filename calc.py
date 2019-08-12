@@ -1,4 +1,4 @@
-from math import acos, asin, atan, cos, exp, factorial, gcd, log, sin, tan
+from math import acos, asin, atan, cos, exp, factorial, gamma, gcd, log, sin, tan
 from cmath import acos as cacos, asin as casin, atan as catan, cos as ccos, exp as cexp, log as clog, sin as csin, tan as ctan
 from random import random
 from time import sleep
@@ -59,12 +59,15 @@ def numpad(n: str):
 		stack.append(0)
 	# other than special
 	elif n == '!': # 33
-		if stack[-1] % 1 or stack[-1] < 0:
-			error('DomainError')
-		if stack[-1] < 2**31:
+		if isinstance(stack[-1], int) and 0 <= stack[-1] < 2**31:
 			stack[-1] = factorial(stack[-1])
 		else:
-			error('OverflowError')
+			try:
+				stack[-1] = gamma(stack[-1])
+			except ValueError:
+				error('DomainError')
+			except OverflowError:
+				error('OverflowError')
 	elif n == '$': # 36
 		index = stack.pop()
 		if isinstance(index, int):
