@@ -75,7 +75,10 @@ def numpad(n: str):
 		else:
 			error('TypeError')
 	elif n == '%': # 37
-		stack[-1] /= 100
+		if 1 < len(stack):
+			stack.append(stack[-2] * stack.pop()/100)
+		else:
+			stack[-1] = 0
 	elif n == '*': # 42
 		if 1 < len(stack):
 			stack.append(stack.pop() * stack.pop())
