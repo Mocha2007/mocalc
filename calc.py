@@ -36,7 +36,10 @@ def error(name: str='Error'):
 def numpad(n: str):
 	global history
 	global stack
-	print(n)
+	try:
+		print(n)
+	except UnicodeEncodeError:
+		print('...')
 	history.append(n)
 	if n in digits: # 48-57
 		n = int(n)
