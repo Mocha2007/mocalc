@@ -9,7 +9,7 @@ from _tkinter import TclError
 digits = '0123456789'
 keys = [
 	['~', 'sqrt', 'square', '^', '←', '', '', 'abs', 'gcd'],
-	['7', '8', '9', '/', '', ';', 'not', 'rand', 'ln'],
+	['7', '8', '9', '/', '', ';', 'not', 'rand', 'ln', 'hypot'],
 	['4', '5', '6', '*', '', '$', 'and', '!', 'sin', 'asin'],
 	['1', '2', '3', '-', '', '@', 'or', 'exp', 'cos', 'acos'],
 	['', '', '%', '+', '', '\\', 'xor', 'mod', 'tan', 'atan'],
@@ -171,6 +171,9 @@ def numpad(n: str):
 				stack.append(gcd(stack.pop(), stack.pop()))
 			else:
 				error('DomainError')
+	elif n == 'hypot':
+		if 1 < len(stack):
+			stack.append((stack.pop()**2 + stack.pop()**2)**.5)
 	elif n == 'ln':
 		if stack[-1].imag or stack[-1] < 0:
 			stack[-1] = clog(stack[-1])
