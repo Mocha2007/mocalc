@@ -6,12 +6,13 @@ import sys
 import tkinter as tk
 from _tkinter import TclError
 # ty https://www.python-course.eu/tkinter_buttons.php <3
+# https://www.tcl.tk/man/tcl8.4/TkCmd/keysyms.htm
 
 digits = '0123456789'
 keys = [
 	['~', 'sqrt', 'square', '^', '←', '', '', 'abs', 'gcd'],
 	['7', '8', '9', '/', '', ';', 'not', 'rand', 'ln', 'hypot'],
-	['4', '5', '6', '*', '', '$', 'and', '!', 'sin', 'asin'],
+	['4', '5', '6', '*', '', '.', 'and', '!', 'sin', 'asin'],
 	['1', '2', '3', '-', '', '@', 'or', 'exp', 'cos', 'acos'],
 	['', '', '%', '+', '', '\\', 'xor', 'mod', 'tan', 'atan'],
 ]
@@ -121,6 +122,8 @@ def numpad(n: str):
 			stack.append(stack.pop(-2) - stack.pop())
 		else:
 			stack[-1] *= -1
+	elif n == '.': # 46
+		stack.append(stack[-1])
 	elif n == '/': # 47
 		if 1 < len(stack):
 			if stack[-1]:
