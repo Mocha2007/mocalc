@@ -8,7 +8,8 @@
 
 ## Commands
 Let a be the top of the stack, b be the next item down, and so on.
-button|keybind|notes                         |
+
+|button|keybind|notes                         |
 |-|-|-|-|
 |0-9|0-9|numbers
 |ENTER|enter, =|push 0 to stack
