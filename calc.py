@@ -3,12 +3,13 @@ from cmath import acos as cacos, asin as casin, atan as catan, cos as ccos, exp 
 from random import random
 from time import sleep
 import tkinter as tk
+from _tkinter import TclError
 # ty https://www.python-course.eu/tkinter_buttons.php <3
 
 digits = '0123456789'
 keys = [
-	['~', 'sqrt', 'square', '^', 'ln', '', '', 'abs'],
-	['7', '8', '9', '/', '', ';', 'not', 'rand'],
+	['~', 'sqrt', 'square', '^', '←', '', '', 'abs'],
+	['7', '8', '9', '/', '', ';', 'not', 'rand', 'ln'],
 	['4', '5', '6', '*', '', '$', 'and', '!', 'sin', 'asin'],
 	['1', '2', '3', '-', '', '@', 'or', 'exp', 'cos', 'acos'],
 	['', '', '%', '+', '', '\\', 'xor', 'mod', 'tan', 'atan'],
@@ -116,6 +117,13 @@ def numpad(n: str):
 			error('ZeroDivisionError')
 	elif n == '~': # 126
 		stack[-1] *= -1
+	elif n == '←': # 8592
+		if isinstance(stack[-1], int):
+			stack[-1] //= 10
+		elif isinstance(stack[-1], float):
+			stack[-1] = float(str(stack[-1])[:-1])
+		else:
+			error('TypeError')
 	# words
 	elif n == 'abs':
 		stack[-1] = abs(stack[-1])
@@ -236,14 +244,18 @@ for i, row in enumerate(keys):
 			continue
 		buttons[i][j] = tk.Button(root, text=k, height=1, width=5, command=(lambda k: lambda: numpad(k))(k))
 		buttons[i][j].grid(row=i+2, column=j)
-		root.bind(k, (lambda k: lambda *_: numpad(k))(k))
+		try:
+			root.bind(k, (lambda k: lambda *_: numpad(k))(k))
+		except TclError:
+			pass
 del i, row, j, k
 tk.Button(root, text='CLEAR', height=3, width=5, command=lambda: numpad('clear')).grid(row=3, column=4, rowspan=2)
 tk.Button(root, text='ENTER', height=3, width=5, command=lambda: numpad('↵')).grid(row=5, column=4, rowspan=2)
 tk.Button(root, text='0', height=1, width=12, command=lambda: numpad('0')).grid(row=6, column=0, columnspan=2)
 # extra binds
 root.bind('<Return>', lambda *_: numpad('↵'))
-root.bind('<BackSpace>', lambda *_: numpad('clear'))
+root.bind('<BackSpace>', lambda *_: numpad('←'))
+root.bind('<Delete>', lambda *_: numpad('clear'))
 # done!
 screen_update()
 root.mainloop()
