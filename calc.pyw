@@ -98,7 +98,10 @@ def numpad(n: str):
 			stack[-1] *= -1
 	elif n == '/': # 47
 		if 1 < len(stack):
-			stack.append(stack.pop(-2) / stack.pop())
+			if stack[-1]:
+				stack.append(stack.pop(-2) / stack.pop())
+			else:
+				error('ZeroDivisionError')
 		elif stack[-1]:
 			stack[-1] = 0
 		else:
