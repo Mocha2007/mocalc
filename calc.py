@@ -2,6 +2,7 @@ from math import acos, asin, atan, cos, exp, factorial, gamma, gcd, log, sin, ta
 from cmath import acos as cacos, asin as casin, atan as catan, cos as ccos, exp as cexp, log as clog, sin as csin, tan as ctan
 from random import random
 from time import sleep
+import sys
 import tkinter as tk
 from _tkinter import TclError
 # ty https://www.python-course.eu/tkinter_buttons.php <3
@@ -38,10 +39,10 @@ def error(name: str='Error'):
 def numpad(n: str):
 	global history
 	global stack
-	try:
-		print(n)
-	except UnicodeEncodeError:
-		print('...')
+	# try:
+		# print(n)
+	# except UnicodeEncodeError:
+		# print('...')
 	history.append(n)
 	# easy errors
 	if n in {'acos', 'asin', 'atan'} and not (-1 <= stack[-1] <= 1):
@@ -55,7 +56,7 @@ def numpad(n: str):
 	elif n == 'clear':
 		stack = [0]
 		history = []
-	elif n == '↵':
+	elif n in {'↵', 'enter', 'return'}:
 		stack.append(0)
 	# other than special
 	elif n == '!': # 33
@@ -271,6 +272,12 @@ tk.Button(root, text='0', height=1, width=12, command=lambda: numpad('0')).grid(
 root.bind('<Return>', lambda *_: numpad('↵'))
 root.bind('<BackSpace>', lambda *_: numpad('←'))
 root.bind('<Delete>', lambda *_: numpad('clear'))
+# if argv
+if sys.argv[1:]:
+	for arg in sys.argv[1:]:
+		numpad(arg)
+	print(stack[-1])
+	exit()
 # done!
 screen_update()
 root.mainloop()
