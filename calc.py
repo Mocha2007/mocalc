@@ -117,7 +117,10 @@ def numpad(n: str):
 		stack[-1] = abs(stack[-1])
 	elif n == 'and':
 		if 1 < len(stack):
-			stack.append(stack.pop(-2) & stack.pop())
+			if isinstance(sum(stack[-2:]), int):
+				stack.append(stack.pop(-2) & stack.pop())
+			else:
+				error('TypeError')
 		else:
 			stack[-1] = 0
 	elif n == 'exp':
@@ -147,10 +150,16 @@ def numpad(n: str):
 		else:
 			error('ZeroDivisionError')
 	elif n == 'not':
-		stack[-1] = ~stack[-1]
+		if isinstance(stack[-1], int):
+			stack[-1] = ~stack[-1]
+		else:
+			error('TypeError')
 	elif n == 'or':
 		if 1 < len(stack):
-			stack.append(stack.pop(-2) | stack.pop())
+			if isinstance(sum(stack[-2:]), int):
+				stack.append(stack.pop(-2) | stack.pop())
+			else:
+				error('TypeError')
 	elif n == 'rand':
 		stack.append(random())
 	elif n == 'sqrt':
@@ -159,7 +168,10 @@ def numpad(n: str):
 		stack[-1] **= 2
 	elif n == 'xor':
 		if 1 < len(stack):
-			stack.append(stack.pop(-2) ^ stack.pop())
+			if isinstance(sum(stack[-2:]), int):
+				stack.append(stack.pop(-2) ^ stack.pop())
+			else:
+				error('TypeError')
 	screen_update()
 
 def screen_update():
