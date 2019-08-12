@@ -7,10 +7,10 @@ import tkinter as tk
 digits = '0123456789'
 keys = [
 	['~', 'sqrt', 'square', '^', 'ln'],
-	['7', '8', '9', '/'],
-	['4', '5', '6', '*'],
-	['1', '2', '3', '-'],
-	['0', '\\', '%', '+'],
+	['7', '8', '9', '/', ''],
+	['4', '5', '6', '*', '', '$'],
+	['1', '2', '3', '-', '', '@'],
+	['', '', '%', '+', '', '\\'],
 ]
 buttons = keys
 key_coords = {}
@@ -52,6 +52,15 @@ def numpad(n: str):
 	elif n == '↵':
 		stack.append(0)
 	# other than special
+	elif n == '$': # 64
+		index = stack.pop()
+		if isinstance(index, int):
+			if len(stack) and abs(index) <= len(stack):
+				stack.append(stack[index])
+			else:
+				error('IndexError')
+		else:
+			error('TypeError')
 	elif n == '%': # 37
 		stack[-1] /= 100
 	elif n == '*': # 42
@@ -75,6 +84,8 @@ def numpad(n: str):
 				stack[-1] = 0
 			else:
 				error('ZeroDivisionError')
+	elif n == '@': # 64
+		stack.append(stack.pop(0))
 	elif n == '\\': # 92
 		if 1 < len(stack):
 			stack.append(stack.pop(-2))
@@ -109,25 +120,29 @@ def screen_update():
 	screen.config(text='\n'.join(str(i) for i in stack), bg='white')
 	history_screen.config(text=' '.join(history))
 
-# make the gui 
+# make the gui
+screen_width = 34
  
 root = tk.Tk()
 root.title("MoCalc")
 root.resizable(False, False)
-history_screen = tk.Label(root, anchor='e', width=30, height=1)
+history_screen = tk.Label(root, anchor='e', width=screen_width, height=1)
 history_screen.grid(row=0, columnspan=len(keys[0])+1)
 history_screen.configure(font=("Consolas", 12))
-screen = tk.Label(root, anchor='e', width=30, height=5)
+screen = tk.Label(root, anchor='e', width=screen_width, height=5)
 screen.grid(row=1, columnspan=len(keys[0])+1)
 screen.configure(font=("Consolas", 12))
 for i, row in enumerate(keys):
 	for j, k in enumerate(row):
+		if not k:
+			continue
 		buttons[i][j] = tk.Button(root, text=k, height=2, width=6, command=(lambda k: lambda: numpad(k))(k))
 		buttons[i][j].grid(row=i+2, column=j)
 		root.bind(k, (lambda k: lambda *_: numpad(k))(k))
 del i, row, j, k
 tk.Button(root, text='CLEAR', height=5, width=6, command=lambda: numpad('clear')).grid(row=3, column=4, rowspan=2)
 tk.Button(root, text='ENTER', height=5, width=6, command=lambda: numpad('↵')).grid(row=5, column=4, rowspan=2)
+tk.Button(root, text='0', height=2, width=13, command=lambda: numpad('0')).grid(row=6, column=0, columnspan=2)
 # extra binds
 root.bind('<Return>', lambda *_: numpad('↵'))
 root.bind('<BackSpace>', lambda *_: numpad('clear'))
