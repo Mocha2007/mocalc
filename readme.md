@@ -4,6 +4,7 @@
 * support for complex math
 * keybinds for all buttons
 * RPN input
+* can be run from the console
 
 ## Commands
 Let a be the top of the stack, b be the next item down, and so on.
