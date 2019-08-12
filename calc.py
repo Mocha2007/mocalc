@@ -7,10 +7,10 @@ import tkinter as tk
 digits = '0123456789'
 keys = [
 	['~', 'sqrt', 'square', '^', 'ln'],
-	['7', '8', '9', '/', ''],
-	['4', '5', '6', '*', '', '$'],
-	['1', '2', '3', '-', '', '@'],
-	['', '', '%', '+', '', '\\', 'mod'],
+	['7', '8', '9', '/', '', '', 'not'],
+	['4', '5', '6', '*', '', '$', 'and'],
+	['1', '2', '3', '-', '', '@', 'or'],
+	['', '', '%', '+', '', '\\', 'xor', 'mod'],
 ]
 buttons = keys
 key_coords = {}
@@ -101,6 +101,18 @@ def numpad(n: str):
 	elif n == '~': # 126
 		stack[-1] *= -1
 	# words
+	elif n == 'and':
+		if 1 < len(stack):
+			stack.append(stack.pop(-2) & stack.pop())
+		else:
+			stack[-1] = 0
+	elif n == 'ln':
+		if stack[-1].imag or stack[-1] < 0:
+			stack[-1] = clog(stack[-1])
+		elif stack[-1]:
+			stack[-1] = log(stack[-1])
+		else:
+			error('DomainError')
 	elif n == 'mod':
 		if 1 < len(stack):
 			if stack[-2].imag or stack[-1].imag:
@@ -113,17 +125,18 @@ def numpad(n: str):
 			stack[-1] = 0
 		else:
 			error('ZeroDivisionError')
-	elif n == 'ln':
-		if stack[-1].imag or stack[-1] < 0:
-			stack[-1] = clog(stack[-1])
-		elif stack[-1]:
-			stack[-1] = log(stack[-1])
-		else:
-			error('DomainError')
+	elif n == 'not':
+		stack[-1] = ~stack[-1]
+	elif n == 'or':
+		if 1 < len(stack):
+			stack.append(stack.pop(-2) | stack.pop())
 	elif n == 'sqrt':
 		stack[-1] **= .5
 	elif n == 'square':
 		stack[-1] **= 2
+	elif n == 'xor':
+		if 1 < len(stack):
+			stack.append(stack.pop(-2) ^ stack.pop())
 	screen_update()
 
 def screen_update():
@@ -144,6 +157,8 @@ screen.grid(row=1, columnspan=len(keys[0])+1)
 screen.configure(font=("Consolas", 12))
 gscommandlabel = tk.Label(root, width=5, height=2, text='GS\nComms')
 gscommandlabel.grid(row=2, column=5)
+bitwisecommandlabel = tk.Label(root, width=5, height=2, text='Bit\nComms')
+bitwisecommandlabel.grid(row=2, column=6)
 
 
 for i, row in enumerate(keys):
