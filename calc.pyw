@@ -15,6 +15,17 @@ keys = [
 	['1', '2', '3', '-', '', '@', 'or', 'exp', 'cos', 'acos'],
 	['', '', '%', '+', '', '\\', 'xor', 'mod', 'tan', 'atan'],
 ]
+shortcuts = {
+	'<Return>': '↵',
+	'<BackSpace>': '←',
+	'<Delete>': 'clear',
+	's': 'sin',
+	'c': 'cos',
+	't': 'tan',
+	'S': 'asin',
+	'C': 'acos',
+	'T': 'atan',
+}
 buttons = keys
 key_coords = {}
 for i, row in enumerate(keys):
@@ -272,9 +283,9 @@ tk.Button(root, text='CLEAR', height=3, width=5, command=lambda: numpad('clear')
 tk.Button(root, text='ENTER', height=3, width=5, command=lambda: numpad('↵')).grid(row=5, column=4, rowspan=2)
 tk.Button(root, text='0', height=1, width=12, command=lambda: numpad('0')).grid(row=6, column=0, columnspan=2)
 # extra binds
-root.bind('<Return>', lambda *_: numpad('↵'))
-root.bind('<BackSpace>', lambda *_: numpad('←'))
-root.bind('<Delete>', lambda *_: numpad('clear'))
+for shortcut, command in shortcuts.items():
+	root.bind(shortcut, (lambda k: lambda *_: numpad(k))(command))
+del shortcut, command
 # if argv
 if sys.argv[1:]:
 	for arg in sys.argv[1:]:
