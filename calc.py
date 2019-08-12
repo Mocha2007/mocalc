@@ -79,11 +79,10 @@ def numpad(n: str):
 	elif n == '/': # 47
 		if 1 < len(stack):
 			stack.append(stack.pop(-2) / stack.pop())
+		elif stack[-1]:
+			stack[-1] = 0
 		else:
-			if stack[-1]:
-				stack[-1] = 0
-			else:
-				error('ZeroDivisionError')
+			error('ZeroDivisionError')
 	elif n == '@': # 64
 		stack.append(stack.pop(0))
 	elif n == '\\': # 92
