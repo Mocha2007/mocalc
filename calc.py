@@ -132,6 +132,10 @@ history_screen.configure(font=("Consolas", 12))
 screen = tk.Label(root, anchor='e', width=screen_width, height=5)
 screen.grid(row=1, columnspan=len(keys[0])+1)
 screen.configure(font=("Consolas", 12))
+gscommandlabel = tk.Label(root, width=5, height=2, text='GS\nComms')
+gscommandlabel.grid(row=2, column=5)
+
+
 for i, row in enumerate(keys):
 	for j, k in enumerate(row):
 		if not k:
