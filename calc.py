@@ -1,12 +1,13 @@
 from math import log
 from cmath import log as clog
+from random import random
 from time import sleep
 import tkinter as tk
 # ty https://www.python-course.eu/tkinter_buttons.php <3
 
 digits = '0123456789'
 keys = [
-	['~', 'sqrt', 'square', '^', 'ln'],
+	['~', 'sqrt', 'square', '^', 'ln', '', '', 'rand'],
 	['7', '8', '9', '/', '', ';', 'not'],
 	['4', '5', '6', '*', '', '$', 'and'],
 	['1', '2', '3', '-', '', '@', 'or'],
@@ -134,6 +135,8 @@ def numpad(n: str):
 	elif n == 'or':
 		if 1 < len(stack):
 			stack.append(stack.pop(-2) | stack.pop())
+	elif n == 'rand':
+		stack.append(random())
 	elif n == 'sqrt':
 		stack[-1] **= .5
 	elif n == 'square':
@@ -148,16 +151,16 @@ def screen_update():
 	history_screen.config(text=' '.join(history))
 
 # make the gui
-screen_width = 34
+screen_width = 45
  
 root = tk.Tk()
 root.title("MoCalc")
 root.resizable(False, False)
 history_screen = tk.Label(root, anchor='e', width=screen_width, height=1)
-history_screen.grid(row=0, columnspan=len(keys[0])+1)
+history_screen.grid(row=0, columnspan=len(keys[0])+3)
 history_screen.configure(font=("Consolas", 12))
 screen = tk.Label(root, anchor='e', width=screen_width, height=5)
-screen.grid(row=1, columnspan=len(keys[0])+1)
+screen.grid(row=1, columnspan=len(keys[0])+3)
 screen.configure(font=("Consolas", 12))
 gscommandlabel = tk.Label(root, width=5, height=2, text='GS\nComms')
 gscommandlabel.grid(row=2, column=5)
