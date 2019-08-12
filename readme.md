@@ -1,3 +1,4 @@
+
 # MoCalc
 
 **Mocalc** is a small calculator, designed with a few technical superiorities to the default windows calculator, including:
@@ -9,8 +10,8 @@
 ## Commands
 Let a be the top of the stack, b be the next item down, and so on.
 
-|button|keybind|notes                         |
-|-|-|-|-|
+|button|keybind|notes
+|-|-|-
 |0-9|0-9|numbers
 |ENTER|enter, =|push 0 to stack
 |CLEAR|delete|clear all
