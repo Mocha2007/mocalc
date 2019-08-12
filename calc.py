@@ -11,7 +11,7 @@ keys = [
 	['7', '8', '9', '/', '', ';', 'not', 'rand'],
 	['4', '5', '6', '*', '', '$', 'and', '!'],
 	['1', '2', '3', '-', '', '@', 'or', 'exp'],
-	['', '', '%', '+', '', '\\', 'xor', 'mod'],
+	['', '', '%', '+', '', '\\', 'xor', 'mod', 'abs'],
 ]
 buttons = keys
 key_coords = {}
@@ -113,6 +113,8 @@ def numpad(n: str):
 	elif n == '~': # 126
 		stack[-1] *= -1
 	# words
+	elif n == 'abs':
+		stack[-1] = abs(stack[-1])
 	elif n == 'and':
 		if 1 < len(stack):
 			stack.append(stack.pop(-2) & stack.pop())
@@ -165,16 +167,16 @@ def screen_update():
 	history_screen.config(text=' '.join(history))
 
 # make the gui
-screen_width = 45
+screen_width = 50
  
 root = tk.Tk()
 root.title("MoCalc")
 root.resizable(False, False)
 history_screen = tk.Label(root, anchor='e', width=screen_width, height=1)
-history_screen.grid(row=0, columnspan=len(keys[0])+3)
+history_screen.grid(row=0, columnspan=len(keys[-1]))
 history_screen.configure(font=("Consolas", 12))
 screen = tk.Label(root, anchor='e', width=screen_width, height=5)
-screen.grid(row=1, columnspan=len(keys[0])+3)
+screen.grid(row=1, columnspan=len(keys[-1]))
 screen.configure(font=("Consolas", 12))
 gscommandlabel = tk.Label(root, width=5, height=2, text='GS\nComms')
 gscommandlabel.grid(row=2, column=5)
