@@ -63,7 +63,7 @@ def numpad(n: str):
 			stack[-1] = factorial(stack[-1])
 		else:
 			try:
-				stack[-1] = gamma(stack[-1])
+				stack[-1] = gamma(stack[-1] + 1)
 			except ValueError:
 				error('DomainError')
 			except OverflowError:
