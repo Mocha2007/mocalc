@@ -10,7 +10,7 @@ keys = [
 	['7', '8', '9', '/', ''],
 	['4', '5', '6', '*', '', '$'],
 	['1', '2', '3', '-', '', '@'],
-	['', '', '%', '+', '', '\\'],
+	['', '', '%', '+', '', '\\', 'mod'],
 ]
 buttons = keys
 key_coords = {}
@@ -95,14 +95,25 @@ def numpad(n: str):
 				error('ZeroDivisionError')
 			else:
 				stack.append(stack.pop(-2) ** stack.pop())
+		elif stack[-1]:
+			stack[-1] = 0
 		else:
-			if stack[-1]:
-				stack[-1] = 0
-			else:
-				error('ZeroDivisionError')
+			error('ZeroDivisionError')
 	elif n == '~': # 126
 		stack[-1] *= -1
 	# words
+	elif n == 'mod':
+		if 1 < len(stack):
+			if stack[-2].imag or stack[-1].imag:
+				error('DomainError')
+			elif stack[-1]:
+				stack.append(stack.pop(-2) % stack.pop())
+			else:
+				error('ZeroDivisionError')
+		elif stack[-1]:
+			stack[-1] = 0
+		else:
+			error('ZeroDivisionError')
 	elif n == 'ln':
 		if stack[-1].imag or stack[-1] < 0:
 			stack[-1] = clog(stack[-1])
