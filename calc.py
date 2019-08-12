@@ -1,5 +1,5 @@
-from math import log
-from cmath import log as clog
+from math import exp, factorial, log
+from cmath import exp as cexp, log as clog
 from random import random
 from time import sleep
 import tkinter as tk
@@ -7,10 +7,10 @@ import tkinter as tk
 
 digits = '0123456789'
 keys = [
-	['~', 'sqrt', 'square', '^', 'ln', '', '', 'rand'],
-	['7', '8', '9', '/', '', ';', 'not'],
-	['4', '5', '6', '*', '', '$', 'and'],
-	['1', '2', '3', '-', '', '@', 'or'],
+	['~', 'sqrt', 'square', '^', 'ln'], # FUTURE SPOT OF 2nd
+	['7', '8', '9', '/', '', ';', 'not', 'rand'],
+	['4', '5', '6', '*', '', '$', 'and', '!'],
+	['1', '2', '3', '-', '', '@', 'or', 'exp'],
 	['', '', '%', '+', '', '\\', 'xor', 'mod'],
 ]
 buttons = keys
@@ -53,7 +53,14 @@ def numpad(n: str):
 	elif n == '↵':
 		stack.append(0)
 	# other than special
-	elif n == '$': # 64
+	elif n == '!': # 33
+		if stack[-1] % 1 or stack[-1] < 0:
+			error('DomainError')
+		if stack[-1] < 2**31:
+			stack[-1] = factorial(stack[-1])
+		else:
+			error('OverflowError')
+	elif n == '$': # 36
 		index = stack.pop()
 		if isinstance(index, int):
 			if len(stack) and abs(index) <= len(stack):
@@ -111,6 +118,13 @@ def numpad(n: str):
 			stack.append(stack.pop(-2) & stack.pop())
 		else:
 			stack[-1] = 0
+	elif n == 'exp':
+		if stack[-1].imag:
+			stack[-1] = cexp(stack[-1])
+		elif stack[-1] < 2**9:
+			stack[-1] = exp(stack[-1])
+		else:
+			error('OverflowError')
 	elif n == 'ln':
 		if stack[-1].imag or stack[-1] < 0:
 			stack[-1] = clog(stack[-1])
