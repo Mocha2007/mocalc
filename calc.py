@@ -1,5 +1,5 @@
-from math import exp, factorial, log
-from cmath import exp as cexp, log as clog
+from math import acos, asin, atan, cos, exp, factorial, log, sin, tan
+from cmath import acos as cacos, asin as casin, atan as catan, cos as ccos, exp as cexp, log as clog, sin as csin, tan as ctan
 from random import random
 from time import sleep
 import tkinter as tk
@@ -7,11 +7,11 @@ import tkinter as tk
 
 digits = '0123456789'
 keys = [
-	['~', 'sqrt', 'square', '^', 'ln'], # FUTURE SPOT OF 2nd
+	['~', 'sqrt', 'square', '^', 'ln', '', '', 'abs'],
 	['7', '8', '9', '/', '', ';', 'not', 'rand'],
-	['4', '5', '6', '*', '', '$', 'and', '!'],
-	['1', '2', '3', '-', '', '@', 'or', 'exp'],
-	['', '', '%', '+', '', '\\', 'xor', 'mod', 'abs'],
+	['4', '5', '6', '*', '', '$', 'and', '!', 'sin', 'asin'],
+	['1', '2', '3', '-', '', '@', 'or', 'exp', 'cos', 'acos'],
+	['', '', '%', '+', '', '\\', 'xor', 'mod', 'tan', 'atan'],
 ]
 buttons = keys
 key_coords = {}
@@ -42,6 +42,10 @@ def numpad(n: str):
 	except UnicodeEncodeError:
 		print('...')
 	history.append(n)
+	# easy errors
+	if n in {'acos', 'asin', 'atan'} and not (-1 <= stack[-1] <= 1):
+		return error('DomainError')
+	# main
 	if n in digits: # 48-57
 		n = int(n)
 		stack[-1] *= 10
@@ -115,6 +119,11 @@ def numpad(n: str):
 	# words
 	elif n == 'abs':
 		stack[-1] = abs(stack[-1])
+	elif n == 'acos':
+		if stack[-1].imag:
+			stack[-1] = cacos(stack[-1])
+		else:
+			stack[-1] = acos(stack[-1])
 	elif n == 'and':
 		if 1 < len(stack):
 			if isinstance(sum(stack[-2:]), int):
@@ -123,6 +132,21 @@ def numpad(n: str):
 				error('TypeError')
 		else:
 			stack[-1] = 0
+	elif n == 'asin':
+		if stack[-1].imag:
+			stack[-1] = casin(stack[-1])
+		else:
+			stack[-1] = asin(stack[-1])
+	elif n == 'atan':
+		if stack[-1].imag:
+			stack[-1] = catan(stack[-1])
+		else:
+			stack[-1] = atan(stack[-1])
+	elif n == 'cos':
+		if stack[-1].imag:
+			stack[-1] = ccos(stack[-1])
+		else:
+			stack[-1] = cos(stack[-1])
 	elif n == 'exp':
 		if stack[-1].imag:
 			stack[-1] = cexp(stack[-1])
@@ -162,10 +186,20 @@ def numpad(n: str):
 				error('TypeError')
 	elif n == 'rand':
 		stack.append(random())
+	elif n == 'sin':
+		if stack[-1].imag:
+			stack[-1] = csin(stack[-1])
+		else:
+			stack[-1] = sin(stack[-1])
 	elif n == 'sqrt':
 		stack[-1] **= .5
 	elif n == 'square':
 		stack[-1] **= 2
+	elif n == 'tan':
+		if stack[-1].imag:
+			stack[-1] = ctan(stack[-1])
+		else:
+			stack[-1] = tan(stack[-1])
 	elif n == 'xor':
 		if 1 < len(stack):
 			if isinstance(sum(stack[-2:]), int):
@@ -179,7 +213,7 @@ def screen_update():
 	history_screen.config(text=' '.join(history))
 
 # make the gui
-screen_width = 50
+screen_width = 57
  
 root = tk.Tk()
 root.title("MoCalc")
