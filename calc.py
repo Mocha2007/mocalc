@@ -56,7 +56,7 @@ def numpad(n: str):
 	elif n == 'clear':
 		stack = [0]
 		history = []
-	elif n in {'↵', 'enter', 'return'}:
+	elif n in {'↵', '=', 'enter', 'return'}:
 		stack.append(0)
 	# other than special
 	elif n == '!': # 33
