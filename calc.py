@@ -7,7 +7,7 @@ import tkinter as tk
 digits = '0123456789'
 keys = [
 	['~', 'sqrt', 'square', '^', 'ln'],
-	['7', '8', '9', '/', '', '', 'not'],
+	['7', '8', '9', '/', '', ';', 'not'],
 	['4', '5', '6', '*', '', '$', 'and'],
 	['1', '2', '3', '-', '', '@', 'or'],
 	['', '', '%', '+', '', '\\', 'xor', 'mod'],
@@ -83,6 +83,10 @@ def numpad(n: str):
 			stack[-1] = 0
 		else:
 			error('ZeroDivisionError')
+	elif n == ';': # 59
+		stack.pop()
+		if not len(stack):
+			numpad('clear')
 	elif n == '@': # 64
 		stack.append(stack.pop(0))
 	elif n == '\\': # 92
