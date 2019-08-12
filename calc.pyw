@@ -19,6 +19,7 @@ shortcuts = {
 	'<Return>': '↵',
 	'<BackSpace>': '←',
 	'<Delete>': 'clear',
+	'<Key-0>': '0',
 	's': 'sin',
 	'c': 'cos',
 	't': 'tan',
@@ -62,7 +63,7 @@ def numpad(n: str):
 	if n in digits: # 48-57
 		n = int(n)
 		stack[-1] *= 10
-		stack[-1] += n if 0 <= n else -n
+		stack[-1] += -n if n < 0 else n
 	# speshul
 	elif n == 'clear':
 		stack = [0]
