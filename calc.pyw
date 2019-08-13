@@ -428,6 +428,7 @@ def view_graphing(*_, **kwargs):
 	global screen
 	global history_screen
 	global graph_image
+	global gscommandlabel
 	global textbox_function, textbox_domain_min, textbox_domain_max, textbox_range_min, textbox_range_max
 	view_clear()
 	view_cez(False)
@@ -501,7 +502,7 @@ def view_scientific(*_):
 	screen.configure(font=("Consolas", 12))
 	screen.bind('<Button-1>', system_copy)
 	gscommandlabel = tk.Label(root, width=5, height=1, text='Stack')
-	gscommandlabel.grid(row=2, column=5)
+	gscommandlabel.grid(row=2, column=5, rowspan=1)
 
 	for i, row in enumerate(keys):
 		for j, k in enumerate(row):
