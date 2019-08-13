@@ -65,9 +65,13 @@ def draw():
 	img = Image.new('RGB', (imgsize,)*2, color='white')
 	# todo graph
 	pixels = img.load()
-	for i in range(img.size[0]): # col (x, decreasing?)
-		for j in range(img.size[1]): # row (y, increasing?)
-			pixels[i,j] = i, j, 100
+	textbox_domain_min, textbox_domain_max, textbox_range_min, textbox_range_max = limits
+	domain = tuple((textbox_domain_max - textbox_domain_min)/img.size[0] * i for i in range(img.size[0]))
+	for i, x in enumerate(domain): # col (x, increasing?)
+		y = f(x)  # todo
+		j = int((y - textbox_range_min) / (textbox_range_max - textbox_range_min) * img.size[1])
+		if j in range(img.size[1]):
+			pixels[i,j] = 0, 0, 0
 	# save!~
 	img.save('graph.gif')
 
@@ -300,7 +304,8 @@ def get_input(text_box) -> str:
 
 
 def screen_update():
-	global graph_image
+	global f, graph_image
+	global limits
 	if graphing_on: # todo
 		history_screen.config(text='Good Input.', bg='#00ff00')
 		# f
