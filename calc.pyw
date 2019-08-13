@@ -269,6 +269,9 @@ def numpad(n: str):
 			stack[-1] = stack[-1].real
 		elif abs(stack[-1].real) < 10**-16:
 			stack[-1] = 1j * stack[-1].imag
+	if isinstance(stack[-1], float):
+		if not (stack[-1] - round(stack[-1])):
+			stack[-1] = round(stack[-1])
 	screen_update()
 
 def screen_update():
