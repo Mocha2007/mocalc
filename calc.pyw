@@ -2,6 +2,7 @@ from math import acos, asin, atan, cos, exp, factorial, gamma, gcd, log, sin, ta
 from cmath import acos as cacos, asin as casin, atan as catan, cos as ccos, exp as cexp, log as clog, sin as csin, tan as ctan
 from random import random
 from time import sleep
+from copy import deepcopy
 import sys
 import tkinter as tk
 from _tkinter import TclError
@@ -41,7 +42,7 @@ shortcuts = {
 	'x': 'xor',
 	'|': 'or',
 }
-buttons = keys
+buttons = deepcopy(keys)
 key_coords = {}
 for i, row in enumerate(keys):
 	for j, k in enumerate(row):
@@ -302,9 +303,26 @@ def system_paste(*_):
 	return None
 
 
+def view_clear():
+	for row in buttons:
+		for button in row:
+			if isinstance(button, tk.Button):
+				button.destroy()
+	try:
+		history_screen.destroy()
+		screen.destroy()
+		bitwisecommandlabel.destroy()
+		gscommandlabel.destroy()
+	except NameError:
+		pass
+
+
 def view_scientific(*_):
 	global history_screen
 	global screen
+	global bitwisecommandlabel
+	global gscommandlabel
+	view_clear()
 	screen_width = 50
 
 	history_screen = tk.Label(root, anchor='e', width=screen_width, height=1)
@@ -318,7 +336,6 @@ def view_scientific(*_):
 	gscommandlabel.grid(row=2, column=5)
 	bitwisecommandlabel = tk.Label(root, width=5, height=1, text='Bit')
 	bitwisecommandlabel.grid(row=2, column=6)
-
 
 	for i, row in enumerate(keys):
 		for j, k in enumerate(row):
@@ -334,6 +351,38 @@ def view_scientific(*_):
 	tk.Button(root, text='CLEAR', height=3, width=5, command=lambda: numpad('clear')).grid(row=3, column=4, rowspan=2)
 	tk.Button(root, text='ENTER', height=3, width=5, command=lambda: numpad('↵')).grid(row=5, column=4, rowspan=2)
 	tk.Button(root, text='0', height=1, width=12, command=lambda: numpad('0')).grid(row=6, column=0, columnspan=2)
+	screen_update()
+
+
+def view_standard(*_):
+	global history_screen
+	global screen
+	view_clear()
+	screen_width = 25
+
+	history_screen = tk.Label(root, anchor='e', width=screen_width, height=1)
+	history_screen.grid(row=0, columnspan=len(keys[-1]))
+	history_screen.configure(font=("Consolas", 12))
+	screen = tk.Label(root, anchor='e', width=screen_width, height=5)
+	screen.grid(row=1, columnspan=len(keys[-1]))
+	screen.configure(font=("Consolas", 12))
+	screen.bind('<Button-1>', system_copy)
+
+	for i, row in enumerate(keys):
+		for j, k in enumerate(row):
+			if not k or 4 < j:
+				continue
+			buttons[i][j] = tk.Button(root, text=k, height=1, width=5, command=(lambda k: lambda: numpad(k))(k))
+			buttons[i][j].grid(row=i+2, column=j)
+			try:
+				root.bind(k, (lambda k: lambda *_: numpad(k))(k))
+			except TclError:
+				pass
+	del i, row, j, k
+	tk.Button(root, text='CLEAR', height=3, width=5, command=lambda: numpad('clear')).grid(row=3, column=4, rowspan=2)
+	tk.Button(root, text='ENTER', height=3, width=5, command=lambda: numpad('↵')).grid(row=5, column=4, rowspan=2)
+	tk.Button(root, text='0', height=1, width=12, command=lambda: numpad('0')).grid(row=6, column=0, columnspan=2)
+	screen_update()
 
 
 # make the gui
@@ -356,6 +405,11 @@ menubar = tk.Menu(root)
 menu_file = tk.Menu(root, tearoff=0)
 menu_file.add_command(label="Exit", command=quit)
 menubar.add_cascade(label="File", menu=menu_file)
+
+menu_view = tk.Menu(root, tearoff=0)
+menu_view.add_command(label="Standard", command=view_standard)
+menu_view.add_command(label="Scientific", command=view_scientific)
+menubar.add_cascade(label="View", menu=menu_view)
 
 menu_edit = tk.Menu(root, tearoff=0)
 menu_edit.add_command(label="Copy", command=system_copy)
