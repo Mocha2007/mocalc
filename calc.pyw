@@ -62,12 +62,14 @@ history = []
 
 # functions
 def draw():
+	resolution = 2
 	img = Image.new('RGB', (imgsize,)*2, color='white')
 	# todo graph
 	pixels = img.load()
 	textbox_domain_min, textbox_domain_max, textbox_range_min, textbox_range_max = limits
-	domain = tuple(textbox_domain_min + (textbox_domain_max - textbox_domain_min)/img.size[0] * i for i in range(img.size[0]))
+	domain = tuple(textbox_domain_min + (textbox_domain_max - textbox_domain_min)/(resolution*img.size[0]) * i for i in range(resolution*img.size[0]))
 	for i, x in enumerate(domain): # col (x, increasing?)
+		i //= resolution
 		try:
 			y = f(x)  # todo
 		except ZeroDivisionError:
@@ -323,7 +325,7 @@ def screen_update(*_):
 		boxes = textbox_domain_min, textbox_domain_max, textbox_range_min, textbox_range_max
 		for i, limit in enumerate(limits):
 			try:
-				limit = float(get_input(boxes[i]))
+				limits[i] = float(get_input(boxes[i]))
 			except Exception as e:
 				history_screen.config(text='Limit {}: {}'.format(i, e), bg='red')
 				return root.update()
