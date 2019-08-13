@@ -59,8 +59,8 @@ graphing_objects = []
 stack = [0]
 history = []
 
-# functions
 
+# functions
 def draw():
 	img = Image.new('RGB', (imgsize,)*2, color='white')
 	# todo graph
@@ -74,6 +74,7 @@ def draw():
 			pixels[i,j] = 0, 0, 0
 	# save!~
 	img.save('graph.gif')
+
 
 def error(name: str='Error'):
 	print(name)
@@ -303,7 +304,7 @@ def get_input(text_box) -> str:
 	return text_box.get('1.0', 'end-1c')
 
 
-def screen_update():
+def screen_update(*_):
 	global f, graph_image
 	global limits
 	if graphing_on: # todo
@@ -313,7 +314,6 @@ def screen_update():
 			f = eval('lambda x:'+get_input(textbox_function))
 		except Exception as e:
 			history_screen.config(text='Function: {}'.format(e), bg='red')
-			print(1, e)
 			return root.update()
 		# lims
 		limits = [-1, 1, -1, 1] # xmin, xmax, ymin, ymax
@@ -323,7 +323,6 @@ def screen_update():
 				limit = float(get_input(boxes[i]))
 			except Exception as e:
 				history_screen.config(text='Limit {}: {}'.format(i, e), bg='red')
-				print(2, e)
 				return root.update()
 		# cleanup
 		draw()
@@ -545,6 +544,7 @@ del shortcut, command
 root.bind('<Control-c>', system_copy)
 root.bind('<Control-v>', system_paste)
 root.bind('<F1>', view_help)
+root.bind('<Key>', screen_update)
 # the menu
 menubar = tk.Menu(root)
 
