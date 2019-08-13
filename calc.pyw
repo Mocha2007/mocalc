@@ -72,7 +72,11 @@ def draw():
 		i //= resolution
 		try:
 			y = f(x)  # todo
-		except ZeroDivisionError:
+		except ZeroDivisionError: # draw vertical asym
+			for j in range(img.size[1], 2):
+				pixels[i,j] = 255, 0, 0
+			continue
+		except ValueError: # prolly domain error
 			continue
 		j = img.size[1] - round((y - textbox_range_min) / (textbox_range_max - textbox_range_min) * img.size[1])
 		if j in range(img.size[1]):
@@ -329,8 +333,12 @@ def screen_update(*_):
 			except Exception as e:
 				history_screen.config(text='Limit {}: {}'.format(i, e), bg='red')
 				return root.update()
-		# cleanup
-		draw()
+		# draw
+		try:
+			draw()
+		except Exception as e:
+			history_screen.config(text='Limit {}: {}'.format(i, e), bg='red')
+			return root.update()
 		graph_image = ImageTk.PhotoImage(Image.open("graph.gif"))
 		screen.config(image=graph_image)
 		return root.update()
