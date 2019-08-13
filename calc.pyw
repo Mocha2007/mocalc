@@ -289,6 +289,7 @@ def get_input(text_box) -> str:
 def screen_update():
 	if graphing_on: # todo
 		history_screen.config(text='Good Input.', bg='#00ff00')
+		screen.config(image=graph_image)
 		# f
 		try:
 			f = eval('lambda x:'+get_input(textbox_function))
@@ -379,6 +380,7 @@ def view_graphing(*_, **kwargs):
 	global graphing_on
 	global screen
 	global history_screen
+	global graph_image
 	global textbox_function, textbox_domain_min, textbox_domain_max, textbox_range_min, textbox_range_max
 	view_clear()
 	graphing_on = True
@@ -390,7 +392,7 @@ def view_graphing(*_, **kwargs):
 	history_screen.configure(font=("Consolas", 12))
 	# graph screen
 	graph_image = tk.PhotoImage(file="graph.gif", master=root)
-	screen = tk.Label(root, image=graph_image, width=screen_width, height=5)
+	screen = tk.Label(root, image=graph_image, width=300, height=300)
 	screen.grid(row=1, columnspan=3)
 	# screen.bind('<Button-1>', system_copy)
 	# labels
