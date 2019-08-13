@@ -274,9 +274,19 @@ def numpad(n: str):
 			stack[-1] = round(stack[-1])
 	screen_update()
 
+def screen_click(*_):
+	root.clipboard_clear()
+	root.clipboard_append(str(stack[-1]))
+	print('Copied.')
+	history_screen.config(text='Copied.', bg='#00ff00')
+	root.update()
+	sleep(1)
+	screen_update()
+	
+
 def screen_update():
 	screen.config(text='\n'.join(str(i) for i in stack), bg='white')
-	history_screen.config(text=' '.join(history))
+	history_screen.config(text=' '.join(history), bg=defaultbg)
 
 # make the gui
 screen_width = 50
@@ -284,12 +294,14 @@ screen_width = 50
 root = tk.Tk()
 root.title("MoCalc")
 root.resizable(False, False)
+defaultbg = root.cget('bg')
 history_screen = tk.Label(root, anchor='e', width=screen_width, height=1)
 history_screen.grid(row=0, columnspan=len(keys[-1]))
 history_screen.configure(font=("Consolas", 12))
 screen = tk.Label(root, anchor='e', width=screen_width, height=5)
 screen.grid(row=1, columnspan=len(keys[-1]))
 screen.configure(font=("Consolas", 12))
+screen.bind('<Button-1>', screen_click)
 gscommandlabel = tk.Label(root, width=5, height=1, text='Stack')
 gscommandlabel.grid(row=2, column=5)
 bitwisecommandlabel = tk.Label(root, width=5, height=1, text='Bit')
