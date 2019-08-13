@@ -129,10 +129,10 @@ def numpad(n: str):
 			stack[-1] *= -1
 	elif n == '.': # 46
 		stack.append(stack[-1])
-	elif n == '/': # 47
+	elif n in {'/', 'idiv'}: # 47
 		if 1 < len(stack):
 			if stack[-1]:
-				if idiv:
+				if idiv or n == 'idiv':
 					stack.append(stack.pop(-2) // stack.pop())
 				else:
 					stack.append(stack.pop(-2) / stack.pop())
