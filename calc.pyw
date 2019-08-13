@@ -316,6 +316,20 @@ def url_label(surface, url: str) -> tk.Label:
 	return url1
 
 
+def view_about():
+	mocha_url = 'https://mocha2007.github.io/'
+	repo_url = 'https://github.com/Mocha2007/mocalc'
+	help_screen = tk.Tk()
+	help_screen.title("About MoCalc")
+	help_screen.resizable(False, False)
+	tk.Label(help_screen, width=25, height=2, text='MoCalc', font=(24,)).pack()
+	tk.Label(help_screen, width=25, height=2, justify='left', text='Author: Mocha2007\nLicense: GPL-3.0').pack()
+
+	url_label(help_screen, mocha_url).pack()
+	url_label(help_screen, repo_url).pack()
+	tk.Label(help_screen, width=25, height=1).pack()
+
+
 def view_clear():
 	global idiv
 	idiv = False
@@ -331,18 +345,14 @@ def view_clear():
 		pass
 
 
-def view_help():
-	mocha_url = 'https://mocha2007.github.io/'
-	repo_url = 'https://github.com/Mocha2007/mocalc'
+def view_help(*_):
 	help_screen = tk.Tk()
-	help_screen.title("About MoCalc")
+	help_screen.title("MoCalc Help")
 	help_screen.resizable(False, False)
-	tk.Label(help_screen, width=25, height=2, text='MoCalc', font=(24,)).pack()
-	tk.Label(help_screen, width=25, height=2, justify='left', text='Author: Mocha2007\nLicense: GPL-3.0').pack()
-
-	url_label(help_screen, mocha_url).pack()
-	url_label(help_screen, repo_url).pack()
-	tk.Label(help_screen, width=25, height=1).pack()
+	help_text = open('readme.md', 'r', encoding='utf8').read()
+	height = help_text.count('\n') + 1
+	width = len(max(help_text.split('\n'), key=len))
+	tk.Label(help_screen, width=width, height=height, justify='left', text=help_text).pack()
 
 
 def view_programmer(*_):
@@ -431,6 +441,7 @@ for shortcut, command in shortcuts.items():
 del shortcut, command
 root.bind('<Control-c>', system_copy)
 root.bind('<Control-v>', system_paste)
+root.bind('<F1>', view_help)
 # the menu
 menubar = tk.Menu(root)
 
@@ -450,7 +461,8 @@ menu_edit.add_command(label="Paste", command=system_paste)
 menubar.add_cascade(label="Edit", menu=menu_edit)
 
 menu_help = tk.Menu(root, tearoff=0)
-menu_help.add_command(label="About", command=view_help)
+menu_help.add_command(label="View Help", command=view_help)
+menu_help.add_command(label="About", command=view_about)
 menubar.add_cascade(label="Help", menu=menu_help)
 
 root.config(menu=menubar)
