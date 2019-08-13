@@ -388,11 +388,11 @@ def view_graphing(*_, **kwargs):
 	text_width = 8
 	# status bar
 	history_screen = tk.Label(root, anchor='e', width=screen_width, height=1)
-	history_screen.grid(row=0, rowspan=3)
+	history_screen.grid(row=0, columnspan=3)
 	history_screen.configure(font=("Consolas", 12))
 	# graph screen
 	graph_image = tk.PhotoImage(file="graph.gif", master=root)
-	screen = tk.Label(root, image=graph_image, width=300, height=300)
+	screen = tk.Label(root, image=graph_image, width=200, height=320)
 	screen.grid(row=1, columnspan=3)
 	# screen.bind('<Button-1>', system_copy)
 	# labels
