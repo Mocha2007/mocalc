@@ -98,7 +98,7 @@ def numpad(n: str):
 	global stack
 
 	if graphing_on:
-		return None
+		return screen_update()
 
 	history.append(n)
 	# easy errors
