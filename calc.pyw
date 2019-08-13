@@ -399,7 +399,7 @@ def view_clear():
 		pass
 	# graph shit
 	for shit in graphing_objects:
-		graphing_objects.destroy()
+		shit.destroy()
 	graphing_objects = []
 
 
