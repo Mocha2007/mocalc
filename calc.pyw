@@ -290,6 +290,18 @@ def system_copy(*_):
 	screen_update()
 
 
+def system_paste(*_):
+	new = root.clipboard_get()
+	for t in (int, float, complex):
+		try:
+			stack.append(t(new))
+			screen_update()
+			return t
+		except ValueError:
+			pass
+	return None
+
+
 # make the gui
 screen_width = 50
  
@@ -337,6 +349,7 @@ menubar.add_cascade(label="File", menu=menu_file)
 
 menu_edit = tk.Menu(root, tearoff=0)
 menu_edit.add_command(label="Copy", command=system_copy)
+menu_edit.add_command(label="Paste", command=system_paste)
 menubar.add_cascade(label="Edit", menu=menu_edit)
 
 root.config(menu=menubar)
