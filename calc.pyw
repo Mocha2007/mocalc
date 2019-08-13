@@ -74,7 +74,7 @@ def draw():
 			y = f(x)  # todo
 		except ZeroDivisionError:
 			continue
-		j = img.size[1] - int((y - textbox_range_min) / (textbox_range_max - textbox_range_min) * img.size[1])
+		j = img.size[1] - round((y - textbox_range_min) / (textbox_range_max - textbox_range_min) * img.size[1])
 		if j in range(img.size[1]):
 			pixels[i,j] = 0, 0, 0
 	# save!~
