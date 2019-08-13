@@ -326,6 +326,12 @@ tk.Button(root, text='0', height=1, width=12, command=lambda: numpad('0')).grid(
 for shortcut, command in shortcuts.items():
 	root.bind(shortcut, (lambda k: lambda *_: numpad(k))(command))
 del shortcut, command
+# the menu
+menubar = tk.Menu(root)
+menu = tk.Menu(root, tearoff=0)
+menu.add_command(label="Exit", command=quit)
+menubar.add_cascade(label="File", menu=menu)
+root.config(menu=menubar)
 # if argv
 if sys.argv[1:]:
 	for arg in sys.argv[1:]:
