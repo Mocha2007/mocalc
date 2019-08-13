@@ -132,7 +132,10 @@ def numpad(n: str):
 	elif n == '/': # 47
 		if 1 < len(stack):
 			if stack[-1]:
-				stack.append(stack.pop(-2) / stack.pop())
+				if idiv:
+					stack.append(stack.pop(-2) // stack.pop())
+				else:
+					stack.append(stack.pop(-2) / stack.pop())
 			else:
 				error('ZeroDivisionError')
 		elif stack[-1]:
@@ -314,6 +317,8 @@ def url_label(surface, url: str) -> tk.Label:
 
 
 def view_clear():
+	global idiv
+	idiv = False
 	for row in buttons:
 		for button in row:
 			if isinstance(button, tk.Button):
@@ -341,7 +346,9 @@ def view_help():
 
 
 def view_programmer(*_):
+	global idiv
 	view_standard(programmer=True)
+	idiv = True
 
 
 def view_scientific(*_):
