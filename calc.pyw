@@ -73,7 +73,7 @@ def draw():
 		try:
 			y = f(x)  # todo
 		except ZeroDivisionError: # draw vertical asym
-			for j in range(img.size[1], 2):
+			for j in range(0, img.size[1], 2):
 				pixels[i,j] = 255, 0, 0
 			continue
 		except ValueError: # prolly domain error
