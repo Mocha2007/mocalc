@@ -49,6 +49,7 @@ key_coords = {}
 for i, row in enumerate(keys):
 	for j, k in enumerate(row):
 		key_coords[k] = i, j
+graphing_objects = []
 
 # set up vars
 
@@ -282,6 +283,8 @@ def numpad(n: str):
 	
 
 def screen_update():
+	if graphing_on:
+		return None # todo
 	screen.config(text='\n'.join(str(i) for i in stack), bg='white')
 	history_screen.config(text=' '.join(history), bg=defaultbg)
 
@@ -331,8 +334,10 @@ def view_about():
 
 
 def view_clear():
+	global graphing_objects
+	global graphing_on
 	global idiv
-	idiv = False
+	graphing_on, idiv = [False]*2
 	for row in buttons:
 		for button in row:
 			if isinstance(button, tk.Button):
@@ -343,6 +348,52 @@ def view_clear():
 		gscommandlabel.destroy()
 	except NameError:
 		pass
+	# graph shit
+	for shit in graphing_objects:
+		graphing_objects.destroy()
+	graphing_objects = []
+
+
+def view_graphing(*_, **kwargs):
+	# https://stackoverflow.com/a/35024600/2579798
+	global graphing_objects
+	global graphing_on
+	global screen
+	global history_screen
+	view_clear()
+	graphing_on = True
+	screen_width = 25
+	text_width = 15
+	# status bar
+	history_screen = tk.Label(root, anchor='e', width=screen_width, height=1)
+	history_screen.grid(row=0, rowspan=3)
+	history_screen.configure(font=("Consolas", 12))
+	# graph screen
+	graph_image = tk.PhotoImage(file="graph.gif")
+	screen = tk.Label(root, image=graph_image, width=screen_width, height=5)
+	screen.grid(row=1, columnspan=3)
+	# screen.bind('<Button-1>', system_copy)
+	# labels
+	gscommandlabel = tk.Label(root, anchor='w', width=7, height=3, text='f(x)\nDomain\nRange')
+	gscommandlabel.grid(row=2, column=0, rowspan=3)
+	# text boxes
+	textbox_function = tk.Text(root, height=1, width=2*text_width)
+	textbox_function.grid(row=2, column=1, columnspan=2)
+
+	textbox_domain_min = tk.Text(root, height=1, width=text_width)
+	textbox_domain_min.grid(row=3, column=1)
+
+	textbox_domain_max = tk.Text(root, height=1, width=text_width)
+	textbox_domain_max.grid(row=3, column=2)
+
+	textbox_range_min = tk.Text(root, height=1, width=text_width)
+	textbox_range_min.grid(row=4, column=1)
+
+	textbox_range_max = tk.Text(root, height=1, width=text_width)
+	textbox_range_max.grid(row=4, column=2)
+	# finish
+	graphing_objects = [textbox_function, textbox_domain_min, textbox_domain_max, textbox_range_min, textbox_range_max]
+	screen_update()
 
 
 def view_help(*_):
@@ -433,7 +484,8 @@ root.title("MoCalc")
 root.resizable(False, False)
 defaultbg = root.cget('bg')
 
-view_scientific()
+# view_scientific()
+view_graphing()
 
 # extra binds
 for shortcut, command in shortcuts.items():
@@ -453,6 +505,7 @@ menu_view = tk.Menu(root, tearoff=0)
 menu_view.add_command(label="Standard", command=view_standard)
 menu_view.add_command(label="Scientific", command=view_scientific)
 menu_view.add_command(label="Programmer", command=view_programmer)
+menu_view.add_command(label="Graphing", command=view_graphing)
 menubar.add_cascade(label="View", menu=menu_view)
 
 menu_edit = tk.Menu(root, tearoff=0)
