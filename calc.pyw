@@ -11,11 +11,11 @@ from _tkinter import TclError
 
 digits = '0123456789'
 keys = [
-	['~', 'sqrt', 'square', '^', '←', '', '', 'abs', 'gcd'],
-	['7', '8', '9', '/', '', ';', 'not', 'rand', 'ln', 'hypot'],
-	['4', '5', '6', '*', '', '.', 'and', '!', 'sin', 'asin'],
-	['1', '2', '3', '-', '', '@', 'or', 'exp', 'cos', 'acos'],
-	['', '', '%', '+', '', '\\', 'xor', 'mod', 'tan', 'atan'],
+	['~', 'sqrt', 'square', '^', '←', '', 'abs', 'gcd'],
+	['7', '8', '9', '/', '', ';', 'rand', 'ln', 'hypot'],
+	['4', '5', '6', '*', '', '.', '!', 'sin', 'asin'],
+	['1', '2', '3', '-', '', '@', 'exp', 'cos', 'acos'],
+	['', '', '%', '+', '', '\\', 'mod', 'tan', 'atan'],
 ]
 shortcuts = {
 	'<Return>': '↵',
@@ -43,6 +43,8 @@ shortcuts = {
 	'|': 'or',
 }
 buttons = deepcopy(keys)
+programmer_keys = deepcopy(keys)
+programmer_keys[0] = 'not and or xor ←'.split()
 key_coords = {}
 for i, row in enumerate(keys):
 	for j, k in enumerate(row):
@@ -319,7 +321,6 @@ def view_clear():
 	try:
 		history_screen.destroy()
 		screen.destroy()
-		bitwisecommandlabel.destroy()
 		gscommandlabel.destroy()
 	except NameError:
 		pass
@@ -339,13 +340,16 @@ def view_help():
 	tk.Label(help_screen, width=25, height=1).pack()
 
 
+def view_programmer(*_):
+	view_standard(programmer=True)
+
+
 def view_scientific(*_):
 	global history_screen
 	global screen
-	global bitwisecommandlabel
 	global gscommandlabel
 	view_clear()
-	screen_width = 50
+	screen_width = 45
 
 	history_screen = tk.Label(root, anchor='e', width=screen_width, height=1)
 	history_screen.grid(row=0, columnspan=len(keys[-1]))
@@ -356,8 +360,6 @@ def view_scientific(*_):
 	screen.bind('<Button-1>', system_copy)
 	gscommandlabel = tk.Label(root, width=5, height=1, text='Stack')
 	gscommandlabel.grid(row=2, column=5)
-	bitwisecommandlabel = tk.Label(root, width=5, height=1, text='Bit')
-	bitwisecommandlabel.grid(row=2, column=6)
 
 	for i, row in enumerate(keys):
 		for j, k in enumerate(row):
@@ -376,11 +378,12 @@ def view_scientific(*_):
 	screen_update()
 
 
-def view_standard(*_):
+def view_standard(*_, **kwargs):
 	global history_screen
 	global screen
 	view_clear()
 	screen_width = 25
+	programmer = 'programmer' in kwargs and kwargs['programmer']
 
 	history_screen = tk.Label(root, anchor='e', width=screen_width, height=1)
 	history_screen.grid(row=0, columnspan=len(keys[-1]))
@@ -390,7 +393,7 @@ def view_standard(*_):
 	screen.configure(font=("Consolas", 12))
 	screen.bind('<Button-1>', system_copy)
 
-	for i, row in enumerate(keys):
+	for i, row in enumerate(programmer_keys if programmer else keys):
 		for j, k in enumerate(row):
 			if not k or 4 < j:
 				continue
@@ -431,6 +434,7 @@ menubar.add_cascade(label="File", menu=menu_file)
 menu_view = tk.Menu(root, tearoff=0)
 menu_view.add_command(label="Standard", command=view_standard)
 menu_view.add_command(label="Scientific", command=view_scientific)
+menu_view.add_command(label="Programmer", command=view_programmer)
 menubar.add_cascade(label="View", menu=menu_view)
 
 menu_edit = tk.Menu(root, tearoff=0)
