@@ -273,8 +273,14 @@ def numpad(n: str):
 		if not (stack[-1] - round(stack[-1])):
 			stack[-1] = round(stack[-1])
 	screen_update()
+	
 
-def screen_click(*_):
+def screen_update():
+	screen.config(text='\n'.join(str(i) for i in stack), bg='white')
+	history_screen.config(text=' '.join(history), bg=defaultbg)
+
+
+def system_copy(*_):
 	root.clipboard_clear()
 	root.clipboard_append(str(stack[-1]))
 	print('Copied.')
@@ -282,11 +288,7 @@ def screen_click(*_):
 	root.update()
 	sleep(1)
 	screen_update()
-	
 
-def screen_update():
-	screen.config(text='\n'.join(str(i) for i in stack), bg='white')
-	history_screen.config(text=' '.join(history), bg=defaultbg)
 
 # make the gui
 screen_width = 50
@@ -301,7 +303,7 @@ history_screen.configure(font=("Consolas", 12))
 screen = tk.Label(root, anchor='e', width=screen_width, height=5)
 screen.grid(row=1, columnspan=len(keys[-1]))
 screen.configure(font=("Consolas", 12))
-screen.bind('<Button-1>', screen_click)
+screen.bind('<Button-1>', system_copy)
 gscommandlabel = tk.Label(root, width=5, height=1, text='Stack')
 gscommandlabel.grid(row=2, column=5)
 bitwisecommandlabel = tk.Label(root, width=5, height=1, text='Bit')
@@ -328,9 +330,15 @@ for shortcut, command in shortcuts.items():
 del shortcut, command
 # the menu
 menubar = tk.Menu(root)
-menu = tk.Menu(root, tearoff=0)
-menu.add_command(label="Exit", command=quit)
-menubar.add_cascade(label="File", menu=menu)
+
+menu_file = tk.Menu(root, tearoff=0)
+menu_file.add_command(label="Exit", command=quit)
+menubar.add_cascade(label="File", menu=menu_file)
+
+menu_edit = tk.Menu(root, tearoff=0)
+menu_edit.add_command(label="Copy", command=system_copy)
+menubar.add_cascade(label="Edit", menu=menu_edit)
+
 root.config(menu=menubar)
 # if argv
 if sys.argv[1:]:
