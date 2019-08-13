@@ -96,10 +96,10 @@ def error(name: str='Error'):
 def numpad(n: str):
 	global history
 	global stack
-	# try:
-		# print(n)
-	# except UnicodeEncodeError:
-		# print('...')
+
+	if graphing_on:
+		return None
+
 	history.append(n)
 	# easy errors
 	if n in {'acos', 'asin'} and not (-1 <= stack[-1] <= 1):
