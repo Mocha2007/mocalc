@@ -62,7 +62,7 @@ history = []
 
 # functions
 def draw():
-	resolution = 2
+	resolution = 16 # 16 w/ x*sin(1/x) -> 30ms
 	img = Image.new('RGB', (imgsize,)*2, color='white')
 	# todo graph
 	pixels = img.load()
