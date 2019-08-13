@@ -340,6 +340,8 @@ tk.Button(root, text='0', height=1, width=12, command=lambda: numpad('0')).grid(
 for shortcut, command in shortcuts.items():
 	root.bind(shortcut, (lambda k: lambda *_: numpad(k))(command))
 del shortcut, command
+root.bind('<Control-c>', system_copy)
+root.bind('<Control-v>', system_paste)
 # the menu
 menubar = tk.Menu(root)
 
