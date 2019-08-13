@@ -6,8 +6,11 @@ from copy import deepcopy
 import sys
 import tkinter as tk
 from _tkinter import TclError
+from PIL import Image, ImageTk
 # ty https://www.python-course.eu/tkinter_buttons.php <3
 # https://www.tcl.tk/man/tcl8.4/TkCmd/keysyms.htm
+
+imgsize = 400 # pixels, square
 
 digits = '0123456789'
 keys = [
@@ -57,6 +60,16 @@ stack = [0]
 history = []
 
 # functions
+
+def draw():
+	img = Image.new('RGB', (imgsize,)*2, color='white')
+	# todo graph
+	pixels = img.load()
+	for i in range(img.size[0]): # col (x, decreasing?)
+		for j in range(img.size[1]): # row (y, increasing?)
+			pixels[i,j] = i, j, 100
+	# save!~
+	img.save('graph.gif')
 
 def error(name: str='Error'):
 	print(name)
@@ -287,14 +300,15 @@ def get_input(text_box) -> str:
 
 
 def screen_update():
+	global graph_image
 	if graphing_on: # todo
 		history_screen.config(text='Good Input.', bg='#00ff00')
-		screen.config(image=graph_image)
 		# f
 		try:
 			f = eval('lambda x:'+get_input(textbox_function))
 		except Exception as e:
 			history_screen.config(text='Function: {}'.format(e), bg='red')
+			return root.update()
 		# lims
 		limits = [-1, 1, -1, 1] # xmin, xmax, ymin, ymax
 		boxes = textbox_domain_min, textbox_domain_max, textbox_range_min, textbox_range_max
@@ -303,7 +317,11 @@ def screen_update():
 				limit = float(get_input(boxes[i]))
 			except Exception as e:
 				history_screen.config(text='Limit {}: {}'.format(i, e), bg='red')
+				return root.update()
 		# cleanup
+		draw()
+		graph_image = ImageTk.PhotoImage(Image.open("graph.gif"))
+		screen.config(image=graph_image)
 		return root.update()
 	screen.config(text='\n'.join(str(i) for i in stack), bg='white')
 	history_screen.config(text=' '.join(history), bg=defaultbg)
@@ -391,7 +409,7 @@ def view_graphing(*_, **kwargs):
 	history_screen.configure(font=("Consolas", 12))
 	# graph screen
 	graph_image = tk.PhotoImage(file="graph.gif", master=root)
-	screen = tk.Label(root, image=graph_image, width=200, height=200)
+	screen = tk.Label(root, image=graph_image, width=imgsize, height=imgsize)
 	screen.grid(row=1, columnspan=3)
 	# screen.bind('<Button-1>', system_copy)
 	# labels
