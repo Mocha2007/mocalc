@@ -7,6 +7,9 @@
 * RPN input
 * can be run from the console
 
+Bugs MoCalc does not have which calc.exe has:
+* sqrt(4) - 2 bug
+
 ## Commands
 Let a be the top of the stack, b be the next item down, and so on.
 
