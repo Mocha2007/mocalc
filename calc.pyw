@@ -302,40 +302,48 @@ def system_paste(*_):
 	return None
 
 
+def view_scientific(*_):
+	global history_screen
+	global screen
+	screen_width = 50
+
+	history_screen = tk.Label(root, anchor='e', width=screen_width, height=1)
+	history_screen.grid(row=0, columnspan=len(keys[-1]))
+	history_screen.configure(font=("Consolas", 12))
+	screen = tk.Label(root, anchor='e', width=screen_width, height=5)
+	screen.grid(row=1, columnspan=len(keys[-1]))
+	screen.configure(font=("Consolas", 12))
+	screen.bind('<Button-1>', system_copy)
+	gscommandlabel = tk.Label(root, width=5, height=1, text='Stack')
+	gscommandlabel.grid(row=2, column=5)
+	bitwisecommandlabel = tk.Label(root, width=5, height=1, text='Bit')
+	bitwisecommandlabel.grid(row=2, column=6)
+
+
+	for i, row in enumerate(keys):
+		for j, k in enumerate(row):
+			if not k:
+				continue
+			buttons[i][j] = tk.Button(root, text=k, height=1, width=5, command=(lambda k: lambda: numpad(k))(k))
+			buttons[i][j].grid(row=i+2, column=j)
+			try:
+				root.bind(k, (lambda k: lambda *_: numpad(k))(k))
+			except TclError:
+				pass
+	del i, row, j, k
+	tk.Button(root, text='CLEAR', height=3, width=5, command=lambda: numpad('clear')).grid(row=3, column=4, rowspan=2)
+	tk.Button(root, text='ENTER', height=3, width=5, command=lambda: numpad('↵')).grid(row=5, column=4, rowspan=2)
+	tk.Button(root, text='0', height=1, width=12, command=lambda: numpad('0')).grid(row=6, column=0, columnspan=2)
+
+
 # make the gui
-screen_width = 50
- 
 root = tk.Tk()
 root.title("MoCalc")
 root.resizable(False, False)
 defaultbg = root.cget('bg')
-history_screen = tk.Label(root, anchor='e', width=screen_width, height=1)
-history_screen.grid(row=0, columnspan=len(keys[-1]))
-history_screen.configure(font=("Consolas", 12))
-screen = tk.Label(root, anchor='e', width=screen_width, height=5)
-screen.grid(row=1, columnspan=len(keys[-1]))
-screen.configure(font=("Consolas", 12))
-screen.bind('<Button-1>', system_copy)
-gscommandlabel = tk.Label(root, width=5, height=1, text='Stack')
-gscommandlabel.grid(row=2, column=5)
-bitwisecommandlabel = tk.Label(root, width=5, height=1, text='Bit')
-bitwisecommandlabel.grid(row=2, column=6)
 
+view_scientific()
 
-for i, row in enumerate(keys):
-	for j, k in enumerate(row):
-		if not k:
-			continue
-		buttons[i][j] = tk.Button(root, text=k, height=1, width=5, command=(lambda k: lambda: numpad(k))(k))
-		buttons[i][j].grid(row=i+2, column=j)
-		try:
-			root.bind(k, (lambda k: lambda *_: numpad(k))(k))
-		except TclError:
-			pass
-del i, row, j, k
-tk.Button(root, text='CLEAR', height=3, width=5, command=lambda: numpad('clear')).grid(row=3, column=4, rowspan=2)
-tk.Button(root, text='ENTER', height=3, width=5, command=lambda: numpad('↵')).grid(row=5, column=4, rowspan=2)
-tk.Button(root, text='0', height=1, width=12, command=lambda: numpad('0')).grid(row=6, column=0, columnspan=2)
 # extra binds
 for shortcut, command in shortcuts.items():
 	root.bind(shortcut, (lambda k: lambda *_: numpad(k))(command))
