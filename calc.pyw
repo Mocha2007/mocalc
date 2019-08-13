@@ -385,17 +385,19 @@ def view_about():
 def view_cez(toggle: bool=True):
 	global clear_button, enter_button, zero_button
 	if toggle:
-		clear_button = tk.Button(root, text='CLEAR', height=3, width=5, command=lambda: numpad('clear'))
-		clear_button.grid(row=3, column=4, rowspan=2)
-		enter_button = tk.Button(root, text='ENTER', height=3, width=5, command=lambda: numpad('↵'))
-		enter_button.grid(row=5, column=4, rowspan=2)
-		zero_button = tk.Button(root, text='0', height=1, width=12, command=lambda: numpad('0'))
-		zero_button.grid(row=6, column=0, columnspan=2)
+		if 'clear_button' not in globals():
+			clear_button = tk.Button(root, text='CLEAR', height=3, width=5, command=lambda: numpad('clear'))
+			clear_button.grid(row=3, column=4, rowspan=2)
+			enter_button = tk.Button(root, text='ENTER', height=3, width=5, command=lambda: numpad('↵'))
+			enter_button.grid(row=5, column=4, rowspan=2)
+			zero_button = tk.Button(root, text='0', height=1, width=12, command=lambda: numpad('0'))
+			zero_button.grid(row=6, column=0, columnspan=2)
 		return None
 	try:
 		clear_button.destroy()
 		enter_button.destroy()
 		zero_button.destroy()
+		del clear_button, enter_button, zero_button
 	except NameError:
 		pass
 
