@@ -73,6 +73,8 @@ def numpad(n: str):
 	# easy errors
 	if n in {'acos', 'asin', 'atan'} and not (-1 <= stack[-1] <= 1):
 		return error('DomainError')
+	elif n in {'cos', 'sin', 'tan'} and 2**2**9 < abs(stack[-1]):
+		return error('OverflowError')
 	# main
 	if n in digits: # 48-57
 		n = int(n)
