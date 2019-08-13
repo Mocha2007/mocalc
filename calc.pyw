@@ -337,7 +337,7 @@ def screen_update(*_):
 		try:
 			draw()
 		except Exception as e:
-			history_screen.config(text='Function: {}'.format(i, e), bg='red')
+			history_screen.config(text='Function: {}'.format(e), bg='red')
 			return root.update()
 		graph_image = ImageTk.PhotoImage(Image.open("graph.gif"))
 		screen.config(image=graph_image)
