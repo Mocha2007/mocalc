@@ -66,10 +66,10 @@ def draw():
 	# todo graph
 	pixels = img.load()
 	textbox_domain_min, textbox_domain_max, textbox_range_min, textbox_range_max = limits
-	domain = tuple((textbox_domain_max - textbox_domain_min)/img.size[0] * i for i in range(img.size[0]))
+	domain = tuple(textbox_domain_min + (textbox_domain_max - textbox_domain_min)/img.size[0] * i for i in range(img.size[0]))
 	for i, x in enumerate(domain): # col (x, increasing?)
 		y = f(x)  # todo
-		j = int((y - textbox_range_min) / (textbox_range_max - textbox_range_min) * img.size[1])
+		j = img.size[1] - int((y - textbox_range_min) / (textbox_range_max - textbox_range_min) * img.size[1])
 		if j in range(img.size[1]):
 			pixels[i,j] = 0, 0, 0
 	# save!~
@@ -313,6 +313,7 @@ def screen_update():
 			f = eval('lambda x:'+get_input(textbox_function))
 		except Exception as e:
 			history_screen.config(text='Function: {}'.format(e), bg='red')
+			print(1, e)
 			return root.update()
 		# lims
 		limits = [-1, 1, -1, 1] # xmin, xmax, ymin, ymax
@@ -322,6 +323,7 @@ def screen_update():
 				limit = float(get_input(boxes[i]))
 			except Exception as e:
 				history_screen.config(text='Limit {}: {}'.format(i, e), bg='red')
+				print(2, e)
 				return root.update()
 		# cleanup
 		draw()
