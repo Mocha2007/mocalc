@@ -263,6 +263,9 @@ def numpad(n: str):
 				stack.append(stack.pop(-2) ^ stack.pop())
 			else:
 				error('TypeError')
+	# imag check
+	if stack[-1].imag and abs(stack[-1].real) < 10**-16:
+		stack[-1] = 1j * stack[-1].imag
 	screen_update()
 
 def screen_update():
