@@ -264,8 +264,11 @@ def numpad(n: str):
 			else:
 				error('TypeError')
 	# imag check
-	if stack[-1].imag and abs(stack[-1].real) < 10**-16:
-		stack[-1] = 1j * stack[-1].imag
+	if isinstance(stack[-1], complex):
+		if abs(stack[-1].imag) < 10**-16:
+			stack[-1] = stack[-1].real
+		elif abs(stack[-1].real) < 10**-16:
+			stack[-1] = 1j * stack[-1].imag
 	screen_update()
 
 def screen_update():
