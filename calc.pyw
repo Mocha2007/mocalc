@@ -282,9 +282,28 @@ def numpad(n: str):
 	screen_update()
 	
 
+def get_input(text_box) -> str:
+	return text_box.get('1.0', 'end-1c')
+
+
 def screen_update():
-	if graphing_on:
-		return None # todo
+	if graphing_on: # todo
+		history_screen.config(text='Good Input.', bg='#00ff00')
+		# f
+		try:
+			f = eval('lambda x:'+get_input(textbox_function))
+		except Exception as e:
+			history_screen.config(text='Function: {}'.format(e), bg='red')
+		# lims
+		limits = [-1, 1, -1, 1] # xmin, xmax, ymin, ymax
+		boxes = textbox_domain_min, textbox_domain_max, textbox_range_min, textbox_range_max
+		for i, limit in enumerate(limits):
+			try:
+				limit = float(get_input(boxes[i]))
+			except Exception as e:
+				history_screen.config(text='Limit {}: {}'.format(i, e), bg='red')
+		# cleanup
+		return root.update()
 	screen.config(text='\n'.join(str(i) for i in stack), bg='white')
 	history_screen.config(text=' '.join(history), bg=defaultbg)
 
@@ -360,16 +379,17 @@ def view_graphing(*_, **kwargs):
 	global graphing_on
 	global screen
 	global history_screen
+	global textbox_function, textbox_domain_min, textbox_domain_max, textbox_range_min, textbox_range_max
 	view_clear()
 	graphing_on = True
 	screen_width = 25
-	text_width = 15
+	text_width = 8
 	# status bar
 	history_screen = tk.Label(root, anchor='e', width=screen_width, height=1)
 	history_screen.grid(row=0, rowspan=3)
 	history_screen.configure(font=("Consolas", 12))
 	# graph screen
-	graph_image = tk.PhotoImage(file="graph.gif")
+	graph_image = tk.PhotoImage(file="graph.gif", master=root)
 	screen = tk.Label(root, image=graph_image, width=screen_width, height=5)
 	screen.grid(row=1, columnspan=3)
 	# screen.bind('<Button-1>', system_copy)
@@ -379,18 +399,23 @@ def view_graphing(*_, **kwargs):
 	# text boxes
 	textbox_function = tk.Text(root, height=1, width=2*text_width)
 	textbox_function.grid(row=2, column=1, columnspan=2)
+	textbox_function.insert(tk.END, 'x')
 
 	textbox_domain_min = tk.Text(root, height=1, width=text_width)
 	textbox_domain_min.grid(row=3, column=1)
+	textbox_domain_min.insert(tk.END, '-1')
 
 	textbox_domain_max = tk.Text(root, height=1, width=text_width)
 	textbox_domain_max.grid(row=3, column=2)
+	textbox_domain_max.insert(tk.END, '1')
 
 	textbox_range_min = tk.Text(root, height=1, width=text_width)
 	textbox_range_min.grid(row=4, column=1)
+	textbox_range_min.insert(tk.END, '-1')
 
 	textbox_range_max = tk.Text(root, height=1, width=text_width)
 	textbox_range_max.grid(row=4, column=2)
+	textbox_range_max.insert(tk.END, '1')
 	# finish
 	graphing_objects = [textbox_function, textbox_domain_min, textbox_domain_max, textbox_range_min, textbox_range_max]
 	screen_update()
