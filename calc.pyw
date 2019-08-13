@@ -303,6 +303,14 @@ def system_paste(*_):
 	return None
 
 
+def url_label(surface, url: str) -> tk.Label:
+	import webbrowser
+	url1 = tk.Label(surface, text=url, fg="blue", cursor="hand2")
+	url1.pack()
+	url1.bind("<Button-1>", lambda *_: webbrowser.open_new(url))
+	return url1
+
+
 def view_clear():
 	for row in buttons:
 		for button in row:
@@ -315,6 +323,20 @@ def view_clear():
 		gscommandlabel.destroy()
 	except NameError:
 		pass
+
+
+def view_help():
+	mocha_url = 'https://mocha2007.github.io/'
+	repo_url = 'https://github.com/Mocha2007/mocalc'
+	help_screen = tk.Tk()
+	help_screen.title("About MoCalc")
+	help_screen.resizable(False, False)
+	tk.Label(help_screen, width=25, height=2, text='MoCalc', font=(24,)).pack()
+	tk.Label(help_screen, width=25, height=2, justify='left', text='Author: Mocha2007\nLicense: GPL-3.0').pack()
+
+	url_label(help_screen, mocha_url).pack()
+	url_label(help_screen, repo_url).pack()
+	tk.Label(help_screen, width=25, height=1).pack()
 
 
 def view_scientific(*_):
@@ -415,6 +437,10 @@ menu_edit = tk.Menu(root, tearoff=0)
 menu_edit.add_command(label="Copy", command=system_copy)
 menu_edit.add_command(label="Paste", command=system_paste)
 menubar.add_cascade(label="Edit", menu=menu_edit)
+
+menu_help = tk.Menu(root, tearoff=0)
+menu_help.add_command(label="About", command=view_help)
+menubar.add_cascade(label="Help", menu=menu_help)
 
 root.config(menu=menubar)
 # if argv
