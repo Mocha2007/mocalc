@@ -505,9 +505,11 @@ def view_help(*_):
 
 
 def view_programmer(*_):
-	global idiv
+	global idiv, stack
 	view_standard(programmer=True)
 	idiv = True
+	stack = [0]
+	numpad('clear')
 
 
 def view_scientific(*_):
@@ -580,7 +582,7 @@ defaultbg = root.cget('bg')
 blank_graph()
 
 # view_scientific()
-view_graphing()
+view_scientific()
 
 # extra binds
 for shortcut, command in shortcuts.items():
