@@ -83,9 +83,13 @@ def draw():
 			continue
 		except ValueError: # prolly domain error
 			continue
-		j = img.size[1] - round((y - textbox_range_min) / (textbox_range_max - textbox_range_min) * img.size[1])
+		if y.imag:
+			j = img.size[1] - round((y.imag - textbox_range_min) / (textbox_range_max - textbox_range_min) * img.size[1])
+			if j in range(img.size[1]):
+				pixels[i,j] = 255, 128, 0
+		j = img.size[1] - round((y.real - textbox_range_min) / (textbox_range_max - textbox_range_min) * img.size[1])
 		if j in range(img.size[1]):
-			pixels[i,j] = 0, 0, 0
+			pixels[i,j] = 0, 0, 255
 	# save!~
 	img.save(img_filename)
 
