@@ -66,6 +66,16 @@ def blank_graph():
 	Image.new('RGB', (imgsize,)*2, color='white').save(img_filename)
 
 
+def derivative(f, n: int=1):
+	"""takes and returns a function of one variable"""
+	assert isinstance(n, int) and 0 < n
+	tol = 1e-6
+	n -= 1
+	if n:
+		return derivative(derivative(f, n))
+	return lambda x: (f(x+tol) - f(x)) / tol
+
+
 def draw():
 	resolution = 16 # 16 w/ x*sin(1/x) -> 30ms
 	img = Image.new('RGB', (imgsize,)*2, color='white')
