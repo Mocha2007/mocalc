@@ -533,7 +533,7 @@ def view_scientific(*_, **kwargs):
 	screen.grid(row=1, columnspan=len(keys[-1]))
 	screen.configure(font=("Consolas", 12))
 	screen.bind('<Button-1>', system_copy)
-	if 'mode' == 'scientific':
+	if mode == 'scientific':
 		gscommandlabel = tk.Label(root, width=5, height=1, text='Stack')
 		gscommandlabel.grid(row=2, column=5, rowspan=1)
 
