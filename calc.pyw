@@ -95,14 +95,14 @@ def integral(f):
 def draw():
 	resolution = 16 # 16 w/ x*sin(1/x) -> 30ms
 	img = Image.new('RGB', (imgsize,)*2, color='white')
-	# todo graph
+
 	pixels = img.load()
 	textbox_domain_min, textbox_domain_max, textbox_range_min, textbox_range_max = limits
 	domain = tuple(textbox_domain_min + (textbox_domain_max - textbox_domain_min)/(resolution*img.size[0]) * i for i in range(resolution*img.size[0]))
 	for i, x in enumerate(domain): # col (x, increasing?)
 		i //= resolution
 		try:
-			y = f(x)  # todo
+			y = f(x)
 		except ZeroDivisionError: # draw vertical asym
 			for j in range(0, img.size[1], 2):
 				pixels[i,j] = 255, 0, 0
@@ -354,7 +354,7 @@ def get_input(text_box) -> str:
 def screen_update(*_):
 	global f, graph_image
 	global limits
-	if graphing_on: # todo
+	if graphing_on:
 		history_screen.config(text='Good Input.', bg='#00ff00')
 		# f
 		try:
