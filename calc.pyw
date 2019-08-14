@@ -531,21 +531,14 @@ def view_help(*_):
 
 
 def view_programmer(*_):
-	global idiv, stack
 	view_scientific(mode='programmer')
-	idiv = True
-	stack = [0]
-	numpad('clear')
 
 
 def view_scientific(*_, **kwargs):
-	global history_screen
-	global screen
-	global gscommandlabel
+	global history_screen, screen, gscommandlabel, idiv, stack
 	view_clear()
 	# establish mode
 	mode = kwargs['mode'] if 'mode' in kwargs else 'scientific'
-	print(mode)
 	# continue
 	screen_width = 45 if mode == 'scientific' else 25
 
@@ -575,6 +568,9 @@ def view_scientific(*_, **kwargs):
 	del i, row, j, k
 	view_cez()
 	screen_update()
+	if mode == 'programmer':
+		idiv = True
+		numpad('clear')
 
 
 def view_standard(*_):
