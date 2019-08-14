@@ -138,9 +138,7 @@ def main(n: str):
 	history.append(n)
 	# main
 	if n in digits: # 48-57
-		n = int(n)
-		stack[-1] *= 10
-		stack[-1] += -n if n < 0 else n
+		stack[-1] = float(str(stack[-1]) + n)
 	# speshul
 	elif n == 'clear':
 		stack = [0]
