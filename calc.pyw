@@ -80,7 +80,16 @@ def integral(f):
 	"""takes and returns a function of one variable"""
 	res = 10
 	#                    [              trapezoid area             ] [for each trapezoid]
-	return lambda x: sum((f(x-i*x/res) + f(x-(i+1)*x/res))/2 * x/res for i in range(res))
+	#return lambda x: sum((f(x-i*x/res) + f(x-(i+1)*x/res))/2 * x/res for i in range(res))
+	def integration(x):
+		s = 0
+		for i in range(res):
+			try:
+				s += (f(x-i*x/res) + f(x-(i+1)*x/res))/2 * x/res
+			except ValueError:
+				pass
+		return s
+	return integration
 
 
 def draw():
