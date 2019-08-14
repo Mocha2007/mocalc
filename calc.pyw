@@ -129,16 +129,13 @@ def error(name: str = 'Error'):
 	numpad('clear')
 
 
-def numpad(n: str):
+def main(n: str):
 	global history, stack
 
 	if graphing_on:
 		return screen_update()
 
 	history.append(n)
-	# easy errors
-	if n in {'cos', 'sin', 'tan'} and 2**2**9 < abs(stack[-1]):
-		return error('OverflowError')
 	# main
 	if n in digits: # 48-57
 		n = int(n)
@@ -155,21 +152,9 @@ def numpad(n: str):
 		if isinstance(stack[-1], int) and 0 <= stack[-1] < 2**31:
 			stack[-1] = factorial(stack[-1])
 		else:
-			try:
-				stack[-1] = gamma(stack[-1] + 1)
-			except ValueError:
-				error('DomainError')
-			except OverflowError:
-				error('OverflowError')
+			stack[-1] = gamma(stack[-1] + 1)
 	elif n == '$': # 36
-		index = stack.pop()
-		if isinstance(index, int):
-			if len(stack) and abs(index) <= len(stack):
-				stack.append(stack[index])
-			else:
-				error('IndexError')
-		else:
-			error('TypeError')
+		stack.append(stack[stack.pop()])
 	elif n == '%': # 37
 		if 1 < len(stack):
 			stack.append(stack[-2] * stack.pop()/100)
@@ -191,9 +176,7 @@ def numpad(n: str):
 	elif n == '.': # 46
 		stack.append(stack[-1])
 	elif n in {'/', 'idiv'}: # 47
-		if stack[-1] == 0:
-			error('ZeroDivisionError')
-		elif 1 < len(stack):
+		if 1 < len(stack):
 			if idiv or n == 'idiv':
 				stack.append(stack.pop(-2) // stack.pop())
 			else:
@@ -211,23 +194,16 @@ def numpad(n: str):
 			stack.append(stack.pop(-2))
 	elif n == '^': # 94
 		if 1 < len(stack):
-			if stack[-2:] == [0, 0]:
-				error('ZeroDivisionError')
-			else:
-				stack.append(stack.pop(-2) ** stack.pop())
-		elif stack[-1]:
-			stack[-1] = 0
+			stack.append(stack.pop(-2) ** stack.pop())
 		else:
-			error('ZeroDivisionError')
+			stack[-1] = 0
 	elif n == '~': # 126
 		stack[-1] *= -1
 	elif n == '←': # 8592
 		if isinstance(stack[-1], int):
 			stack[-1] //= 10
-		elif isinstance(stack[-1], float):
-			stack[-1] = float(str(stack[-1])[:-1])
 		else:
-			error('TypeError')
+			stack[-1] = float(str(stack[-1])[:-1])
 	# words
 	elif n == 'abs':
 		stack[-1] = abs(stack[-1])
@@ -235,10 +211,7 @@ def numpad(n: str):
 		stack[-1] = acos(stack[-1])
 	elif n == 'and':
 		if 1 < len(stack):
-			if isinstance(sum(stack[-2:]), int):
-				stack.append(stack.pop(-2) & stack.pop())
-			else:
-				error('TypeError')
+			stack.append(stack.pop(-2) & stack.pop())
 		else:
 			stack[-1] = 0
 	elif n == 'asin':
@@ -248,45 +221,25 @@ def numpad(n: str):
 	elif n == 'cos':
 		stack[-1] = cos(stack[-1])
 	elif n == 'exp':
-		if 2**9 < abs(stack[-1]):
-			error('OverflowError')
-		else:
-			stack[-1] = exp(stack[-1])
+		stack[-1] = exp(stack[-1])
 	elif n == 'gcd':
 		if 1 < len(stack):
-			if isinstance(sum(stack[-2:]), int):
-				stack.append(gcd(stack.pop(), stack.pop()))
-			else:
-				error('DomainError')
+			stack.append(gcd(stack.pop(), stack.pop()))
 	elif n == 'hypot':
 		if 1 < len(stack):
 			stack.append((stack.pop()**2 + stack.pop()**2)**.5)
 	elif n == 'ln':
-		if stack[-1]:
-			stack[-1] = log(stack[-1])
-		else:
-			error('DomainError')
+		stack[-1] = log(stack[-1])
 	elif n == 'mod':
-		if stack[-1] == 0:
-			error('ZeroDivisionError')
-		elif 1 < len(stack):
-			if stack[-2].imag or stack[-1].imag:
-				error('DomainError')
-			else:
-				stack.append(stack.pop(-2) % stack.pop())
+		if 1 < len(stack):
+			stack.append(stack.pop(-2) % stack.pop())
 		else:
 			stack[-1] = 0
 	elif n == 'not':
-		if isinstance(stack[-1], int):
-			stack[-1] = ~stack[-1]
-		else:
-			error('TypeError')
+		stack[-1] = ~stack[-1]
 	elif n == 'or':
 		if 1 < len(stack):
-			if isinstance(sum(stack[-2:]), int):
-				stack.append(stack.pop(-2) | stack.pop())
-			else:
-				error('TypeError')
+			stack.append(stack.pop(-2) | stack.pop())
 	elif n == 'rand':
 		stack.append(random())
 	elif n == 'sin':
@@ -299,10 +252,7 @@ def numpad(n: str):
 		stack[-1] = tan(stack[-1])
 	elif n == 'xor':
 		if 1 < len(stack):
-			if isinstance(sum(stack[-2:]), int):
-				stack.append(stack.pop(-2) ^ stack.pop())
-			else:
-				error('TypeError')
+			stack.append(stack.pop(-2) ^ stack.pop())
 	# imag check
 	if isinstance(stack[-1], complex):
 		if abs(stack[-1].imag) < 10**-16:
@@ -313,7 +263,14 @@ def numpad(n: str):
 		if not (stack[-1] - round(stack[-1])):
 			stack[-1] = round(stack[-1])
 	screen_update()
-	
+
+
+def numpad(n: str):
+	try:
+		main(n)
+	except Exception as e:
+		error(str(e))
+
 
 def get_input(text_box: tk.Text) -> str:
 	return text_box.get('1.0', 'end-1c')
