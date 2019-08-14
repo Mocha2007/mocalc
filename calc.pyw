@@ -81,16 +81,15 @@ def draw():
 			for j in range(0, img.size[1], 2):
 				pixels[i,j] = 255, 0, 0
 			continue
-		try:
-			if y.imag:
-				j = img.size[1] - round((y.imag - textbox_range_min) / (textbox_range_max - textbox_range_min) * img.size[1])
-				if j in range(img.size[1]):
-					pixels[i,j] = 255, 128, 0
-			j = img.size[1] - round((y.real - textbox_range_min) / (textbox_range_max - textbox_range_min) * img.size[1])
-			if j in range(img.size[1]):
-				pixels[i,j] = 0, 0, 255
 		except OverflowError:
 			continue
+		if y.imag:
+			j = img.size[1] - round((y.imag - textbox_range_min) / (textbox_range_max - textbox_range_min) * img.size[1])
+			if j in range(img.size[1]):
+				pixels[i,j] = 255, 128, 0
+		j = img.size[1] - round((y.real - textbox_range_min) / (textbox_range_max - textbox_range_min) * img.size[1])
+		if j in range(img.size[1]):
+			pixels[i,j] = 0, 0, 255
 	# save!~
 	img.save(img_filename)
 
@@ -358,7 +357,8 @@ def screen_update(*_):
 
 def system_copy(*_):
 	root.clipboard_clear()
-	root.clipboard_append(str(stack[-1]))
+	addendum = history_screen.cget('text') if graphing_on else str(stack[-1])
+	root.clipboard_append(addendum)
 	print('Copied.')
 	history_screen.config(text='Copied.', bg='#00ff00')
 	root.update()
@@ -455,14 +455,14 @@ def view_graphing(*_, **kwargs):
 	graphing_on = True
 	text_width = 12
 	# status bar
-	history_screen = tk.Label(root, anchor='e', width=3*text_width, height=1)
+	history_screen = tk.Label(root, anchor='e', width=3*text_width+8, height=1)
 	history_screen.grid(row=0, columnspan=3)
 	history_screen.configure(font=("Consolas", 12))
+	history_screen.bind('<Button-1>', system_copy)
 	# graph screen
 	graph_image = tk.PhotoImage(file=img_filename, master=root)
 	screen = tk.Label(root, image=graph_image, width=imgsize, height=imgsize)
 	screen.grid(row=1, columnspan=3)
-	# screen.bind('<Button-1>', system_copy)
 	# labels
 	gscommandlabel = tk.Label(root, anchor='e', justify='right', width=text_width, height=3, text='f(x)\nDomain\nRange')
 	gscommandlabel.grid(row=2, column=0, rowspan=3)
