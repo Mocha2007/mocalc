@@ -76,6 +76,13 @@ def derivative(f, n: int=1):
 	return lambda x: (f(x+tol) - f(x)) / tol
 
 
+def integral(f):
+	"""takes and returns a function of one variable"""
+	res = 10
+	#                    [              trapezoid area             ] [for each trapezoid]
+	return lambda x: sum((f(x-i*x/res) + f(x-(i+1)*x/res))/2 * x/res for i in range(res))
+
+
 def draw():
 	resolution = 16 # 16 w/ x*sin(1/x) -> 30ms
 	img = Image.new('RGB', (imgsize,)*2, color='white')
