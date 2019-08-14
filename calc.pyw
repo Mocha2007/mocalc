@@ -107,7 +107,7 @@ def draw():
 			for j in range(0, img.size[1], 2):
 				pixels[i,j] = 255, 0, 0
 			continue
-		except OverflowError:
+		except (OverflowError, ValueError):
 			continue
 		try:
 			if y.imag:
