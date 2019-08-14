@@ -6,7 +6,7 @@ from copy import deepcopy
 import sys
 import tkinter as tk
 from _tkinter import TclError
-from PIL import Image, ImageTk
+from PIL import Image, ImageTk, __version__ as pilv
 # note to self https://www.tcl.tk/man/tcl8.4/TkCmd/keysyms.htm
 
 imgsize = 400 # pixels, square
@@ -414,6 +414,7 @@ def view_about():
 	help_screen.resizable(False, False)
 	tk.Label(help_screen, width=25, height=2, text='MoCalc', font=(24,)).pack()
 	tk.Label(help_screen, width=25, height=2, justify='left', text='Author: Mocha2007\nLicense: GPL-3.0').pack()
+	tk.Label(help_screen, width=25, height=3, justify='left', text='Using:\nPython {}\nPIL {}'.format(sys.version[:5], pilv)).pack()
 
 	url_label(help_screen, mocha_url).pack()
 	url_label(help_screen, repo_url).pack()
