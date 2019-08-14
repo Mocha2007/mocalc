@@ -6,8 +6,12 @@ from copy import deepcopy
 import sys
 import tkinter as tk
 from _tkinter import TclError
+from PIL import Image, ImageTk
 # ty https://www.python-course.eu/tkinter_buttons.php <3
 # https://www.tcl.tk/man/tcl8.4/TkCmd/keysyms.htm
+
+imgsize = 400 # pixels, square
+img_filename = 'graph.png'
 
 digits = '0123456789'
 keys = [
@@ -49,13 +53,49 @@ key_coords = {}
 for i, row in enumerate(keys):
 	for j, k in enumerate(row):
 		key_coords[k] = i, j
+graphing_objects = []
 
 # set up vars
 
 stack = [0]
 history = []
 
+
 # functions
+def blank_graph():
+	Image.new('RGB', (imgsize,)*2, color='white').save(img_filename)
+
+
+def draw():
+	resolution = 16 # 16 w/ x*sin(1/x) -> 30ms
+	img = Image.new('RGB', (imgsize,)*2, color='white')
+	# todo graph
+	pixels = img.load()
+	textbox_domain_min, textbox_domain_max, textbox_range_min, textbox_range_max = limits
+	domain = tuple(textbox_domain_min + (textbox_domain_max - textbox_domain_min)/(resolution*img.size[0]) * i for i in range(resolution*img.size[0]))
+	for i, x in enumerate(domain): # col (x, increasing?)
+		i //= resolution
+		try:
+			y = f(x)  # todo
+		except ZeroDivisionError: # draw vertical asym
+			for j in range(0, img.size[1], 2):
+				pixels[i,j] = 255, 0, 0
+			continue
+		except OverflowError:
+			continue
+		try:
+			if y.imag:
+				j = img.size[1] - round((y.imag - textbox_range_min) / (textbox_range_max - textbox_range_min) * img.size[1])
+				if j in range(img.size[1]):
+					pixels[i,j] = 255, 128, 0
+			j = img.size[1] - round((y.real - textbox_range_min) / (textbox_range_max - textbox_range_min) * img.size[1])
+			if j in range(img.size[1]):
+				pixels[i,j] = 0, 0, 255
+		except (OverflowError, ValueError):
+			continue
+	# save!~
+	img.save(img_filename)
+
 
 def error(name: str='Error'):
 	print(name)
@@ -68,10 +108,10 @@ def error(name: str='Error'):
 def numpad(n: str):
 	global history
 	global stack
-	# try:
-		# print(n)
-	# except UnicodeEncodeError:
-		# print('...')
+
+	if graphing_on:
+		return screen_update()
+
 	history.append(n)
 	# easy errors
 	if n in {'acos', 'asin'} and not (-1 <= stack[-1] <= 1):
@@ -281,14 +321,47 @@ def numpad(n: str):
 	screen_update()
 	
 
-def screen_update():
+def get_input(text_box) -> str:
+	return text_box.get('1.0', 'end-1c')
+
+
+def screen_update(*_):
+	global f, graph_image
+	global limits
+	if graphing_on: # todo
+		history_screen.config(text='Good Input.', bg='#00ff00')
+		# f
+		try:
+			f = eval('lambda x:'+get_input(textbox_function))
+		except Exception as e:
+			history_screen.config(text='Function: {}'.format(e), bg='red')
+			return root.update()
+		# lims
+		limits = [-1, 1, -1, 1] # xmin, xmax, ymin, ymax
+		boxes = textbox_domain_min, textbox_domain_max, textbox_range_min, textbox_range_max
+		for i, limit in enumerate(limits):
+			try:
+				limits[i] = float(get_input(boxes[i]))
+			except Exception as e:
+				history_screen.config(text='Limit {}: {}'.format(i, e), bg='red')
+				return root.update()
+		# draw
+		try:
+			draw()
+		except Exception as e:
+			history_screen.config(text='Function: {}'.format(e), bg='red')
+			return root.update()
+		graph_image = ImageTk.PhotoImage(Image.open(img_filename))
+		screen.config(image=graph_image)
+		return root.update()
 	screen.config(text='\n'.join(str(i) for i in stack), bg='white')
 	history_screen.config(text=' '.join(history), bg=defaultbg)
 
 
 def system_copy(*_):
 	root.clipboard_clear()
-	root.clipboard_append(str(stack[-1]))
+	addendum = history_screen.cget('text') if graphing_on else str(stack[-1])
+	root.clipboard_append(addendum)
 	print('Copied.')
 	history_screen.config(text='Copied.', bg='#00ff00')
 	root.update()
@@ -330,9 +403,31 @@ def view_about():
 	tk.Label(help_screen, width=25, height=1).pack()
 
 
+def view_cez(toggle: bool=True):
+	global clear_button, enter_button, zero_button
+	if toggle:
+		if 'clear_button' not in globals():
+			clear_button = tk.Button(root, text='CLEAR', height=3, width=5, command=lambda: numpad('clear'))
+			clear_button.grid(row=3, column=4, rowspan=2)
+			enter_button = tk.Button(root, text='ENTER', height=3, width=5, command=lambda: numpad('↵'))
+			enter_button.grid(row=5, column=4, rowspan=2)
+			zero_button = tk.Button(root, text='0', height=1, width=12, command=lambda: numpad('0'))
+			zero_button.grid(row=6, column=0, columnspan=2)
+		return None
+	try:
+		clear_button.destroy()
+		enter_button.destroy()
+		zero_button.destroy()
+		del clear_button, enter_button, zero_button
+	except NameError:
+		pass
+
+
 def view_clear():
+	global graphing_objects
+	global graphing_on
 	global idiv
-	idiv = False
+	graphing_on, idiv = [False]*2
 	for row in buttons:
 		for button in row:
 			if isinstance(button, tk.Button):
@@ -343,6 +438,60 @@ def view_clear():
 		gscommandlabel.destroy()
 	except NameError:
 		pass
+	# graph shit
+	for shit in graphing_objects:
+		shit.destroy()
+	graphing_objects = []
+
+
+def view_graphing(*_, **kwargs):
+	# https://stackoverflow.com/a/35024600/2579798
+	global graphing_objects
+	global graphing_on
+	global screen
+	global history_screen
+	global graph_image
+	global gscommandlabel
+	global textbox_function, textbox_domain_min, textbox_domain_max, textbox_range_min, textbox_range_max
+	view_clear()
+	view_cez(False)
+	graphing_on = True
+	text_width = 12
+	# status bar
+	history_screen = tk.Label(root, anchor='e', width=3*text_width+8, height=1)
+	history_screen.grid(row=0, columnspan=3)
+	history_screen.configure(font=("Consolas", 12))
+	history_screen.bind('<Button-1>', system_copy)
+	# graph screen
+	graph_image = tk.PhotoImage(file=img_filename, master=root)
+	screen = tk.Label(root, image=graph_image, width=imgsize, height=imgsize)
+	screen.grid(row=1, columnspan=3)
+	# labels
+	gscommandlabel = tk.Label(root, anchor='e', justify='right', width=text_width, height=3, text='f(x)\nDomain\nRange')
+	gscommandlabel.grid(row=2, column=0, rowspan=3)
+	# text boxes
+	textbox_function = tk.Text(root, height=1, width=3*text_width)
+	textbox_function.grid(row=2, column=1, columnspan=2)
+	textbox_function.insert(tk.END, 'x')
+
+	textbox_domain_min = tk.Text(root, height=1, width=text_width)
+	textbox_domain_min.grid(row=3, column=1)
+	textbox_domain_min.insert(tk.END, '-1')
+
+	textbox_domain_max = tk.Text(root, height=1, width=text_width)
+	textbox_domain_max.grid(row=3, column=2)
+	textbox_domain_max.insert(tk.END, '1')
+
+	textbox_range_min = tk.Text(root, height=1, width=text_width)
+	textbox_range_min.grid(row=4, column=1)
+	textbox_range_min.insert(tk.END, '-1')
+
+	textbox_range_max = tk.Text(root, height=1, width=text_width)
+	textbox_range_max.grid(row=4, column=2)
+	textbox_range_max.insert(tk.END, '1')
+	# finish
+	graphing_objects = [textbox_function, textbox_domain_min, textbox_domain_max, textbox_range_min, textbox_range_max]
+	screen_update()
 
 
 def view_help(*_):
@@ -356,9 +505,11 @@ def view_help(*_):
 
 
 def view_programmer(*_):
-	global idiv
+	global idiv, stack
 	view_standard(programmer=True)
 	idiv = True
+	stack = [0]
+	numpad('clear')
 
 
 def view_scientific(*_):
@@ -376,7 +527,7 @@ def view_scientific(*_):
 	screen.configure(font=("Consolas", 12))
 	screen.bind('<Button-1>', system_copy)
 	gscommandlabel = tk.Label(root, width=5, height=1, text='Stack')
-	gscommandlabel.grid(row=2, column=5)
+	gscommandlabel.grid(row=2, column=5, rowspan=1)
 
 	for i, row in enumerate(keys):
 		for j, k in enumerate(row):
@@ -389,9 +540,7 @@ def view_scientific(*_):
 			except TclError:
 				pass
 	del i, row, j, k
-	tk.Button(root, text='CLEAR', height=3, width=5, command=lambda: numpad('clear')).grid(row=3, column=4, rowspan=2)
-	tk.Button(root, text='ENTER', height=3, width=5, command=lambda: numpad('↵')).grid(row=5, column=4, rowspan=2)
-	tk.Button(root, text='0', height=1, width=12, command=lambda: numpad('0')).grid(row=6, column=0, columnspan=2)
+	view_cez()
 	screen_update()
 
 
@@ -421,9 +570,7 @@ def view_standard(*_, **kwargs):
 			except TclError:
 				pass
 	del i, row, j, k
-	tk.Button(root, text='CLEAR', height=3, width=5, command=lambda: numpad('clear')).grid(row=3, column=4, rowspan=2)
-	tk.Button(root, text='ENTER', height=3, width=5, command=lambda: numpad('↵')).grid(row=5, column=4, rowspan=2)
-	tk.Button(root, text='0', height=1, width=12, command=lambda: numpad('0')).grid(row=6, column=0, columnspan=2)
+	view_cez()
 	screen_update()
 
 
@@ -432,7 +579,9 @@ root = tk.Tk()
 root.title("MoCalc")
 root.resizable(False, False)
 defaultbg = root.cget('bg')
+blank_graph()
 
+# view_scientific()
 view_scientific()
 
 # extra binds
@@ -442,6 +591,7 @@ del shortcut, command
 root.bind('<Control-c>', system_copy)
 root.bind('<Control-v>', system_paste)
 root.bind('<F1>', view_help)
+root.bind('<Key>', screen_update)
 # the menu
 menubar = tk.Menu(root)
 
@@ -453,6 +603,7 @@ menu_view = tk.Menu(root, tearoff=0)
 menu_view.add_command(label="Standard", command=view_standard)
 menu_view.add_command(label="Scientific", command=view_scientific)
 menu_view.add_command(label="Programmer", command=view_programmer)
+menu_view.add_command(label="Graphing", command=view_graphing)
 menubar.add_cascade(label="View", menu=menu_view)
 
 menu_edit = tk.Menu(root, tearoff=0)
