@@ -54,12 +54,61 @@ for ki, krow in enumerate(keys):
 		key_coords[kk] = ki, kj
 graphing_objects = []
 
+
+# stack class
+class Stack:
+	def __init__(self):
+		self.stack = [0]
+
+	def __getitem__(self, item: int):
+		return self.stack[item]
+
+	def __iter__(self):
+		return iter(self.stack)
+
+	def clean(self):
+		x = self.pop()
+		if isinstance(x, complex):
+			if abs(x.imag) < 10**-16:
+				x = x.real
+			elif abs(x.real) < 10**-16:
+				x = 1j*x.imag
+		if isinstance(x, float):
+			if not (x - round(x)):
+				x = round(x)
+		self.push(x)
+
+	def clear(self):
+		self.stack = [0]
+
+	def op(self, fx):
+		try:
+			args = [self.pop() for _ in range(argcount(fx))]
+			self.push(fx(*args[::-1]))
+		except UnicodeWarning: # Exception as e:
+			error(str(e))
+
+	def pop(self, index: int = -1):
+		try:
+			return self.stack.pop(index)
+		except IndexError:
+			return 0
+
+	def push(self, value):
+		self.stack.append(value)
+
+
 # set up vars
-stack = [0]
+stack = Stack()
 history = []
 
 
 # functions
+def argcount(fx) -> int:
+	from inspect import signature
+	return len(signature(fx).parameters)
+
+
 def blank_graph():
 	Image.new('RGB', (imgsize,)*2, color='white').save(img_filename)
 
@@ -129,7 +178,7 @@ def error(name: str = 'Error'):
 	numpad('clear')
 
 
-def main(n: str):
+def numpad(n: str):
 	global history, stack
 
 	if graphing_on:
@@ -138,64 +187,50 @@ def main(n: str):
 	history.append(n)
 	# main
 	if n in digits: # 48-57
-		stack[-1] = float(str(stack[-1]) + n)
+		stack.push(float(str(stack.pop())+n))
 	# speshul
 	elif n == 'clear':
-		stack, history = [0], []
+		stack.clear()
+		history = []
 	elif n in {'↵', '=', 'enter', 'return'}:
-		stack.append(0)
+		stack.push(0)
 	# other than special
 	elif n == '!': # 33
 		if isinstance(stack[-1], int):
-			stack[-1] = factorial(stack[-1])
+			stack.op(factorial)
 		else:
-			stack[-1] = gamma(stack[-1] + 1)
+			stack.op(lambda x: gamma(x + 1))
 	elif n == '$': # 36
-		stack.append(stack[stack.pop()])
+		stack.push(stack[stack.pop()])
 	elif n == '%': # 37
 		if 1 < len(stack):
-			stack.append(stack[-2] * stack.pop()/100)
+			stack.push(stack[-2] * stack.pop()/100)
 		else:
-			stack[-1] = 0
+			stack.clear()
 	elif n == '*': # 42
-		if 1 < len(stack):
-			stack.append(stack.pop() * stack.pop())
-		else:
-			stack[-1] = 0
+		stack.op(lambda a, b: a*b)
 	elif n == '+': # 43
-		if 1 < len(stack):
-			stack.append(stack.pop() + stack.pop())
+		stack.op(lambda a, b: a+b)
 	elif n == '-': # 45
-		if 1 < len(stack):
-			stack.append(stack.pop(-2) - stack.pop())
-		else:
-			stack[-1] *= -1
+		stack.op(lambda a, b: a-b)
 	elif n == '.': # 46
 		stack.append(stack[-1])
 	elif n in {'/', 'idiv'}: # 47
-		if 1 < len(stack):
-			if idiv or n == 'idiv':
-				stack.append(stack.pop(-2) // stack.pop())
-			else:
-				stack.append(stack.pop(-2) / stack.pop())
+		if idiv or n == 'idiv':
+			stack.op(lambda a, b: a//b)
 		else:
-			stack[-1] = 0
+			stack.op(lambda a, b: a/b)
 	elif n == ';': # 59
 		stack.pop()
-		if not len(stack):
-			numpad('clear')
 	elif n == '@': # 64
-		stack.append(stack.pop(0))
+		stack.push(stack.pop(0))
 	elif n == '\\': # 92
 		if 1 < len(stack):
-			stack.append(stack.pop(-2))
+			stack.push(stack.pop(-2))
 	elif n == '^': # 94
-		if 1 < len(stack):
-			stack.append(stack.pop(-2) ** stack.pop())
-		else:
-			stack[-1] = 0
+		stack.op(lambda a, b: a**b)
 	elif n == '~': # 126
-		stack[-1] *= -1
+		stack.op(lambda a: -a)
 	elif n == '←': # 8592
 		if isinstance(stack[-1], int):
 			stack[-1] //= 10
@@ -203,70 +238,45 @@ def main(n: str):
 			stack[-1] = float(str(stack[-1])[:-1])
 	# words
 	elif n == 'abs':
-		stack[-1] = abs(stack[-1])
+		stack.op(abs)
 	elif n == 'acos':
-		stack[-1] = acos(stack[-1])
+		stack.op(acos)
 	elif n == 'and':
-		if 1 < len(stack):
-			stack.append(stack.pop(-2) & stack.pop())
-		else:
-			stack[-1] = 0
+		stack.op(lambda a, b: a & b)
 	elif n == 'asin':
-		stack[-1] = asin(stack[-1])
+		stack.op(asin)
 	elif n == 'atan':
-		stack[-1] = atan(stack[-1])
+		stack.op(atan)
 	elif n == 'cos':
-		stack[-1] = cos(stack[-1])
+		stack.op(cos)
 	elif n == 'exp':
-		stack[-1] = exp(stack[-1])
+		stack.op(exp)
 	elif n == 'gcd':
-		if 1 < len(stack):
-			stack.append(gcd(stack.pop(), stack.pop()))
+		stack.op(gcd)
 	elif n == 'hypot':
-		if 1 < len(stack):
-			stack.append((stack.pop()**2 + stack.pop()**2)**.5)
+		stack.op(lambda a, b: (a**2 + b**2)**.5)
 	elif n == 'ln':
-		stack[-1] = log(stack[-1])
+		stack.op(lambda a: log(a))
 	elif n == 'mod':
-		if 1 < len(stack):
-			stack.append(stack.pop(-2) % stack.pop())
-		else:
-			stack[-1] = 0
+		stack.op(lambda a, b: a % b)
 	elif n == 'not':
-		stack[-1] = ~stack[-1]
+		stack.op(lambda a: ~a)
 	elif n == 'or':
-		if 1 < len(stack):
-			stack.append(stack.pop(-2) | stack.pop())
+		stack.op(lambda a, b: a | b)
 	elif n == 'rand':
-		stack.append(random())
+		stack.push(random())
 	elif n == 'sin':
-		stack[-1] = sin(stack[-1])
+		stack.op(sin)
 	elif n == 'sqrt':
-		stack[-1] **= .5
+		stack.op(lambda a: a**.5)
 	elif n == 'square':
-		stack[-1] **= 2
+		stack.op(lambda a: a*a)
 	elif n == 'tan':
-		stack[-1] = tan(stack[-1])
+		stack.op(tan)
 	elif n == 'xor':
-		if 1 < len(stack):
-			stack.append(stack.pop(-2) ^ stack.pop())
-	# imag check
-	if isinstance(stack[-1], complex):
-		if abs(stack[-1].imag) < 10**-16:
-			stack[-1] = stack[-1].real
-		elif abs(stack[-1].real) < 10**-16:
-			stack[-1] = 1j * stack[-1].imag
-	if isinstance(stack[-1], float):
-		if not (stack[-1] - round(stack[-1])):
-			stack[-1] = round(stack[-1])
+		stack.op(lambda a, b: a ^ b)
+	stack.clean()
 	screen_update()
-
-
-def numpad(n: str):
-	try:
-		main(n)
-	except Exception as e:
-		error(str(e))
 
 
 def get_input(text_box: tk.Text) -> str:
@@ -320,7 +330,7 @@ def system_paste(*_):
 	new = root.clipboard_get()
 	for t in (int, float, complex):
 		try:
-			stack.append(t(new))
+			stack.push(t(new))
 			screen_update()
 			return t
 		except ValueError:
