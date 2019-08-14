@@ -7,8 +7,7 @@ import sys
 import tkinter as tk
 from _tkinter import TclError
 from PIL import Image, ImageTk
-# ty https://www.python-course.eu/tkinter_buttons.php <3
-# https://www.tcl.tk/man/tcl8.4/TkCmd/keysyms.htm
+# note to self https://www.tcl.tk/man/tcl8.4/TkCmd/keysyms.htm
 
 imgsize = 400 # pixels, square
 img_filename = 'graph.png'
@@ -79,9 +78,7 @@ def derivative(f, n: int=1):
 def integral(f):
 	"""takes and returns a function of one variable"""
 	res = 10
-	#                    [              trapezoid area             ] [for each trapezoid]
-	#return lambda x: sum((f(x-i*x/res) + f(x-(i+1)*x/res))/2 * x/res for i in range(res))
-	def integration(x):
+	def integration(x: float):
 		s = 0
 		for i in range(res):
 			try:
@@ -99,7 +96,7 @@ def draw():
 	pixels = img.load()
 	textbox_domain_min, textbox_domain_max, textbox_range_min, textbox_range_max = limits
 	domain = tuple(textbox_domain_min + (textbox_domain_max - textbox_domain_min)/(resolution*img.size[0]) * i for i in range(resolution*img.size[0]))
-	for i, x in enumerate(domain): # col (x, increasing?)
+	for i, x in enumerate(domain): # col (x, increasing)
 		i //= resolution
 		try:
 			y = f(x)
@@ -132,8 +129,7 @@ def error(name: str='Error'):
 
 
 def numpad(n: str):
-	global history
-	global stack
+	global history, stack
 
 	if graphing_on:
 		return screen_update()
@@ -196,18 +192,15 @@ def numpad(n: str):
 	elif n == '.': # 46
 		stack.append(stack[-1])
 	elif n in {'/', 'idiv'}: # 47
-		if 1 < len(stack):
-			if stack[-1]:
-				if idiv or n == 'idiv':
-					stack.append(stack.pop(-2) // stack.pop())
-				else:
-					stack.append(stack.pop(-2) / stack.pop())
-			else:
-				error('ZeroDivisionError')
-		elif stack[-1]:
-			stack[-1] = 0
-		else:
+		if stack[-1] == 0:
 			error('ZeroDivisionError')
+		elif 1 < len(stack):
+			if idiv or n == 'idiv':
+				stack.append(stack.pop(-2) // stack.pop())
+			else:
+				stack.append(stack.pop(-2) / stack.pop())
+		else:
+			stack[-1] = 0
 	elif n == ';': # 59
 		stack.pop()
 		if not len(stack):
@@ -268,12 +261,12 @@ def numpad(n: str):
 		else:
 			stack[-1] = cos(stack[-1])
 	elif n == 'exp':
-		if stack[-1].imag:
-			stack[-1] = cexp(stack[-1])
-		elif stack[-1] < 2**9:
-			stack[-1] = exp(stack[-1])
-		else:
+		if 2**9 < abs(stack[-1]):
 			error('OverflowError')
+		elif stack[-1].imag:
+			stack[-1] = cexp(stack[-1])
+		else:
+			stack[-1] = exp(stack[-1])
 	elif n == 'gcd':
 		if 1 < len(stack):
 			if isinstance(sum(stack[-2:]), int):
@@ -291,17 +284,15 @@ def numpad(n: str):
 		else:
 			error('DomainError')
 	elif n == 'mod':
-		if 1 < len(stack):
+		if stack[-1] == 0:
+			error('ZeroDivisionError')
+		elif 1 < len(stack):
 			if stack[-2].imag or stack[-1].imag:
 				error('DomainError')
-			elif stack[-1]:
-				stack.append(stack.pop(-2) % stack.pop())
 			else:
-				error('ZeroDivisionError')
-		elif stack[-1]:
-			stack[-1] = 0
+				stack.append(stack.pop(-2) % stack.pop())
 		else:
-			error('ZeroDivisionError')
+			stack[-1] = 0
 	elif n == 'not':
 		if isinstance(stack[-1], int):
 			stack[-1] = ~stack[-1]
