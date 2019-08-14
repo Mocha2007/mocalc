@@ -91,7 +91,7 @@ def draw():
 			j = img.size[1] - round((y.real - textbox_range_min) / (textbox_range_max - textbox_range_min) * img.size[1])
 			if j in range(img.size[1]):
 				pixels[i,j] = 0, 0, 255
-		except OverflowError:
+		except (OverflowError, ValueError):
 			continue
 	# save!~
 	img.save(img_filename)
