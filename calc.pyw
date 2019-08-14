@@ -532,18 +532,22 @@ def view_help(*_):
 
 def view_programmer(*_):
 	global idiv, stack
-	view_standard(programmer=True)
+	view_scientific(mode='programmer')
 	idiv = True
 	stack = [0]
 	numpad('clear')
 
 
-def view_scientific(*_):
+def view_scientific(*_, **kwargs):
 	global history_screen
 	global screen
 	global gscommandlabel
 	view_clear()
-	screen_width = 45
+	# establish mode
+	mode = kwargs['mode'] if 'mode' in kwargs else 'scientific'
+	print(mode)
+	# continue
+	screen_width = 45 if mode == 'scientific' else 25
 
 	history_screen = tk.Label(root, anchor='e', width=screen_width, height=1)
 	history_screen.grid(row=0, columnspan=len(keys[-1]))
@@ -552,42 +556,15 @@ def view_scientific(*_):
 	screen.grid(row=1, columnspan=len(keys[-1]))
 	screen.configure(font=("Consolas", 12))
 	screen.bind('<Button-1>', system_copy)
-	gscommandlabel = tk.Label(root, width=5, height=1, text='Stack')
-	gscommandlabel.grid(row=2, column=5, rowspan=1)
+	if 'mode' == 'scientific':
+		gscommandlabel = tk.Label(root, width=5, height=1, text='Stack')
+		gscommandlabel.grid(row=2, column=5, rowspan=1)
 
-	for i, row in enumerate(keys):
+	for i, row in enumerate(programmer_keys if mode == 'programmer' else keys):
 		for j, k in enumerate(row):
 			if not k:
 				continue
-			buttons[i][j] = tk.Button(root, text=k, height=1, width=5, command=(lambda k: lambda: numpad(k))(k))
-			buttons[i][j].grid(row=i+2, column=j)
-			try:
-				root.bind(k, (lambda k: lambda *_: numpad(k))(k))
-			except TclError:
-				pass
-	del i, row, j, k
-	view_cez()
-	screen_update()
-
-
-def view_standard(*_, **kwargs):
-	global history_screen
-	global screen
-	view_clear()
-	screen_width = 25
-	programmer = 'programmer' in kwargs and kwargs['programmer']
-
-	history_screen = tk.Label(root, anchor='e', width=screen_width, height=1)
-	history_screen.grid(row=0, columnspan=len(keys[-1]))
-	history_screen.configure(font=("Consolas", 12))
-	screen = tk.Label(root, anchor='e', width=screen_width, height=5)
-	screen.grid(row=1, columnspan=len(keys[-1]))
-	screen.configure(font=("Consolas", 12))
-	screen.bind('<Button-1>', system_copy)
-
-	for i, row in enumerate(programmer_keys if programmer else keys):
-		for j, k in enumerate(row):
-			if not k or 4 < j:
+			if mode != 'scientific' and 4 < j:
 				continue
 			buttons[i][j] = tk.Button(root, text=k, height=1, width=5, command=(lambda k: lambda: numpad(k))(k))
 			buttons[i][j].grid(row=i+2, column=j)
@@ -598,6 +575,10 @@ def view_standard(*_, **kwargs):
 	del i, row, j, k
 	view_cez()
 	screen_update()
+
+
+def view_standard(*_):
+	view_scientific(mode='standard')
 
 
 # make the gui
