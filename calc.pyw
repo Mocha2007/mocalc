@@ -338,7 +338,7 @@ def numpad(n: str):
 	screen_update()
 	
 
-def get_input(text_box) -> str:
+def get_input(text_box: tk.Text) -> str:
 	return text_box.get('1.0', 'end-1c')
 
 
@@ -399,10 +399,10 @@ def system_paste(*_):
 
 
 def url_label(surface, url: str) -> tk.Label:
-	import webbrowser
+	from webbrowser import open_new
 	url1 = tk.Label(surface, text=url, fg="blue", cursor="hand2")
 	url1.pack()
-	url1.bind("<Button-1>", lambda *_: webbrowser.open_new(url))
+	url1.bind("<Button-1>", lambda *_: open_new(url))
 	return url1
 
 
@@ -441,9 +441,7 @@ def view_cez(toggle: bool=True):
 
 
 def view_clear():
-	global graphing_objects
-	global graphing_on
-	global idiv
+	global graphing_objects, graphing_on, idiv
 	graphing_on, idiv = [False]*2
 	for row in buttons:
 		for button in row:
@@ -463,12 +461,7 @@ def view_clear():
 
 def view_graphing(*_, **kwargs):
 	# https://stackoverflow.com/a/35024600/2579798
-	global graphing_objects
-	global graphing_on
-	global screen
-	global history_screen
-	global graph_image
-	global gscommandlabel
+	global graphing_objects, graphing_on, screen, history_screen, graph_image, gscommandlabel
 	global textbox_function, textbox_domain_min, textbox_domain_max, textbox_range_min, textbox_range_max
 	view_clear()
 	view_cez(False)
