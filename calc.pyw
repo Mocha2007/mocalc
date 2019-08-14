@@ -1,7 +1,6 @@
 from math import factorial, gamma, gcd
 from cmath import acos, asin, atan, cos, exp, log, sin, tan
 from random import random
-from time import sleep
 from copy import deepcopy
 import sys
 import tkinter as tk
@@ -45,6 +44,40 @@ shortcuts = {
 	'x': 'xor',
 	'|': 'or',
 }
+symbolmap = {
+	'!': lambda a: factorial(a) if isinstance(a, int) else gamma(a+1),
+	'$': lambda a: stack[a],
+	'%': lambda a: a/100 * stack[-1],
+	'*': lambda a, b: a*b,
+	'+': lambda a, b: a+b,
+	'-': lambda a, b: a-b,
+	'.': lambda: stack[-1],
+	'/': lambda a, b: a//b if idiv else a/b,
+	'idiv': lambda a, b: a//b,
+	'@': lambda: stack.pop(0),
+	'\\': lambda: stack.pop(-2),
+	'^': lambda a, b: a**b,
+	'~': lambda a: -a,
+	'abs': abs,
+	'acos': acos,
+	'and': lambda a, b: a & b,
+	'asin': asin,
+	'atan': atan,
+	'cos': cos,
+	'exp': exp,
+	'gcd': gcd,
+	'hypot': lambda a, b: (a**2 + b**2)**.5,
+	'ln': lambda a: log(a),
+	'mod': lambda a, b: a % b,
+	'not': lambda a: ~a,
+	'or': lambda a, b: a | b,
+	'rand': lambda: random(),
+	'sin': sin,
+	'sqrt': lambda a: a**.5,
+	'square': lambda a: a*a,
+	'tan': tan,
+	'xor': lambda a, b: a ^ b,
+}
 buttons = deepcopy(keys)
 programmer_keys = deepcopy(keys)
 programmer_keys[0] = 'not and or xor ←'.split()
@@ -54,12 +87,64 @@ for ki, krow in enumerate(keys):
 		key_coords[kk] = ki, kj
 graphing_objects = []
 
+
+# stack class
+class Stack:
+	def __init__(self):
+		self.stack = [0]
+
+	def __getitem__(self, item: int):
+		try:
+			return self.stack[item]
+		except IndexError:
+			return 0
+
+	def __iter__(self):
+		return iter(self.stack)
+
+	def clean(self):
+		x = self.pop()
+		if isinstance(x, complex):
+			if abs(x.imag) < 10**-16:
+				x = x.real
+			elif abs(x.real) < 10**-16:
+				x = 1j*x.imag
+		if isinstance(x, float):
+			if not (x - round(x)):
+				x = round(x)
+		self.push(x)
+
+	def clear(self):
+		self.stack = [0]
+
+	def op(self, fx):
+		try:
+			args = [self.pop() for _ in range(argcount(fx))]
+			self.push(fx(*args[::-1]))
+		except Exception as e:
+			error(str(e))
+
+	def pop(self, index: int = -1):
+		try:
+			return self.stack.pop(index)
+		except IndexError:
+			return 0
+
+	def push(self, value):
+		self.stack.append(value)
+
+
 # set up vars
-stack = [0]
+stack = Stack()
 history = []
 
 
 # functions
+def argcount(fx) -> int:
+	from inspect import signature
+	return len(signature(fx).parameters)
+
+
 def blank_graph():
 	Image.new('RGB', (imgsize,)*2, color='white').save(img_filename)
 
@@ -122,14 +207,11 @@ def draw():
 
 
 def error(name: str = 'Error'):
-	print(name)
-	screen.config(text=name, bg='red')
-	root.update()
-	sleep(1)
+	status(name, 'red')
 	numpad('clear')
 
 
-def main(n: str):
+def numpad(n: str):
 	global history, stack
 
 	if graphing_on:
@@ -138,135 +220,25 @@ def main(n: str):
 	history.append(n)
 	# main
 	if n in digits: # 48-57
-		stack[-1] = float(str(stack[-1]) + n)
+		stack.push(float(str(stack.pop())+n))
 	# speshul
 	elif n == 'clear':
-		stack, history = [0], []
+		stack.clear()
+		history = []
 	elif n in {'↵', '=', 'enter', 'return'}:
-		stack.append(0)
-	# other than special
-	elif n == '!': # 33
-		if isinstance(stack[-1], int):
-			stack[-1] = factorial(stack[-1])
-		else:
-			stack[-1] = gamma(stack[-1] + 1)
-	elif n == '$': # 36
-		stack.append(stack[stack.pop()])
-	elif n == '%': # 37
-		if 1 < len(stack):
-			stack.append(stack[-2] * stack.pop()/100)
-		else:
-			stack[-1] = 0
-	elif n == '*': # 42
-		if 1 < len(stack):
-			stack.append(stack.pop() * stack.pop())
-		else:
-			stack[-1] = 0
-	elif n == '+': # 43
-		if 1 < len(stack):
-			stack.append(stack.pop() + stack.pop())
-	elif n == '-': # 45
-		if 1 < len(stack):
-			stack.append(stack.pop(-2) - stack.pop())
-		else:
-			stack[-1] *= -1
-	elif n == '.': # 46
-		stack.append(stack[-1])
-	elif n in {'/', 'idiv'}: # 47
-		if 1 < len(stack):
-			if idiv or n == 'idiv':
-				stack.append(stack.pop(-2) // stack.pop())
-			else:
-				stack.append(stack.pop(-2) / stack.pop())
-		else:
-			stack[-1] = 0
+		stack.push(0)
 	elif n == ';': # 59
 		stack.pop()
-		if not len(stack):
-			numpad('clear')
-	elif n == '@': # 64
-		stack.append(stack.pop(0))
-	elif n == '\\': # 92
-		if 1 < len(stack):
-			stack.append(stack.pop(-2))
-	elif n == '^': # 94
-		if 1 < len(stack):
-			stack.append(stack.pop(-2) ** stack.pop())
-		else:
-			stack[-1] = 0
-	elif n == '~': # 126
-		stack[-1] *= -1
 	elif n == '←': # 8592
 		if isinstance(stack[-1], int):
 			stack[-1] //= 10
 		else:
 			stack[-1] = float(str(stack[-1])[:-1])
-	# words
-	elif n == 'abs':
-		stack[-1] = abs(stack[-1])
-	elif n == 'acos':
-		stack[-1] = acos(stack[-1])
-	elif n == 'and':
-		if 1 < len(stack):
-			stack.append(stack.pop(-2) & stack.pop())
-		else:
-			stack[-1] = 0
-	elif n == 'asin':
-		stack[-1] = asin(stack[-1])
-	elif n == 'atan':
-		stack[-1] = atan(stack[-1])
-	elif n == 'cos':
-		stack[-1] = cos(stack[-1])
-	elif n == 'exp':
-		stack[-1] = exp(stack[-1])
-	elif n == 'gcd':
-		if 1 < len(stack):
-			stack.append(gcd(stack.pop(), stack.pop()))
-	elif n == 'hypot':
-		if 1 < len(stack):
-			stack.append((stack.pop()**2 + stack.pop()**2)**.5)
-	elif n == 'ln':
-		stack[-1] = log(stack[-1])
-	elif n == 'mod':
-		if 1 < len(stack):
-			stack.append(stack.pop(-2) % stack.pop())
-		else:
-			stack[-1] = 0
-	elif n == 'not':
-		stack[-1] = ~stack[-1]
-	elif n == 'or':
-		if 1 < len(stack):
-			stack.append(stack.pop(-2) | stack.pop())
-	elif n == 'rand':
-		stack.append(random())
-	elif n == 'sin':
-		stack[-1] = sin(stack[-1])
-	elif n == 'sqrt':
-		stack[-1] **= .5
-	elif n == 'square':
-		stack[-1] **= 2
-	elif n == 'tan':
-		stack[-1] = tan(stack[-1])
-	elif n == 'xor':
-		if 1 < len(stack):
-			stack.append(stack.pop(-2) ^ stack.pop())
-	# imag check
-	if isinstance(stack[-1], complex):
-		if abs(stack[-1].imag) < 10**-16:
-			stack[-1] = stack[-1].real
-		elif abs(stack[-1].real) < 10**-16:
-			stack[-1] = 1j * stack[-1].imag
-	if isinstance(stack[-1], float):
-		if not (stack[-1] - round(stack[-1])):
-			stack[-1] = round(stack[-1])
+	# other than special
+	elif n in symbolmap:
+		stack.op(symbolmap[n])
+	stack.clean()
 	screen_update()
-
-
-def numpad(n: str):
-	try:
-		main(n)
-	except Exception as e:
-		error(str(e))
 
 
 def get_input(text_box: tk.Text) -> str:
@@ -305,22 +277,27 @@ def screen_update(*_):
 	history_screen.config(text=' '.join(history), bg=defaultbg)
 
 
+def status(text: str, color: str):
+	from time import sleep
+	print(text)
+	history_screen.config(text=text, bg=color)
+	root.update()
+	sleep(1)
+	screen_update()
+
+
 def system_copy(*_):
 	root.clipboard_clear()
 	addendum = history_screen.cget('text') if graphing_on else str(stack[-1])
 	root.clipboard_append(addendum)
-	print('Copied.')
-	history_screen.config(text='Copied.', bg='#00ff00')
-	root.update()
-	sleep(1)
-	screen_update()
+	status('Copied.', '#00ff00')
 
 
 def system_paste(*_):
 	new = root.clipboard_get()
 	for t in (int, float, complex):
 		try:
-			stack.append(t(new))
+			stack.push(t(new))
 			screen_update()
 			return t
 		except ValueError:
