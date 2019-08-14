@@ -45,6 +45,40 @@ shortcuts = {
 	'x': 'xor',
 	'|': 'or',
 }
+symbolmap = {
+	'!': lambda a: factorial(a) if isinstance(a, int) else gamma(a+1),
+	'$': lambda a: stack[a],
+	'%': lambda a: a/100 * stack[-1],
+	'*': lambda a, b: a*b,
+	'+': lambda a, b: a+b,
+	'-': lambda a, b: a-b,
+	'.': lambda: stack[-1],
+	'/': lambda a, b: a//b if idiv else a/b,
+	'idiv': lambda a, b: a//b,
+	'@': lambda: stack.pop(0),
+	'\\': lambda: stack.pop(-2),
+	'^': lambda a, b: a**b,
+	'~': lambda a: -a,
+	'abs': abs,
+	'acos': acos,
+	'and': lambda a, b: a & b,
+	'asin': asin,
+	'atan': atan,
+	'cos': cos,
+	'exp': exp,
+	'gcd': gcd,
+	'hypot': lambda a, b: (a**2 + b**2)**.5,
+	'ln': lambda a: log(a),
+	'mod': lambda a, b: a % b,
+	'not': lambda a: ~a,
+	'or': lambda a, b: a | b,
+	'rand': lambda: random(),
+	'sin': sin,
+	'sqrt': lambda a: a**.5,
+	'square': lambda a: a*a,
+	'tan': tan,
+	'xor': lambda a, b: a ^ b,
+}
 buttons = deepcopy(keys)
 programmer_keys = deepcopy(keys)
 programmer_keys[0] = 'not and or xor ←'.split()
@@ -61,7 +95,10 @@ class Stack:
 		self.stack = [0]
 
 	def __getitem__(self, item: int):
-		return self.stack[item]
+		try:
+			return self.stack[item]
+		except IndexError:
+			return 0
 
 	def __iter__(self):
 		return iter(self.stack)
@@ -85,7 +122,7 @@ class Stack:
 		try:
 			args = [self.pop() for _ in range(argcount(fx))]
 			self.push(fx(*args[::-1]))
-		except UnicodeWarning: # Exception as e:
+		except Exception as e:
 			error(str(e))
 
 	def pop(self, index: int = -1):
@@ -194,87 +231,16 @@ def numpad(n: str):
 		history = []
 	elif n in {'↵', '=', 'enter', 'return'}:
 		stack.push(0)
-	# other than special
-	elif n == '!': # 33
-		if isinstance(stack[-1], int):
-			stack.op(factorial)
-		else:
-			stack.op(lambda x: gamma(x + 1))
-	elif n == '$': # 36
-		stack.push(stack[stack.pop()])
-	elif n == '%': # 37
-		if 1 < len(stack):
-			stack.push(stack[-2] * stack.pop()/100)
-		else:
-			stack.clear()
-	elif n == '*': # 42
-		stack.op(lambda a, b: a*b)
-	elif n == '+': # 43
-		stack.op(lambda a, b: a+b)
-	elif n == '-': # 45
-		stack.op(lambda a, b: a-b)
-	elif n == '.': # 46
-		stack.append(stack[-1])
-	elif n in {'/', 'idiv'}: # 47
-		if idiv or n == 'idiv':
-			stack.op(lambda a, b: a//b)
-		else:
-			stack.op(lambda a, b: a/b)
 	elif n == ';': # 59
 		stack.pop()
-	elif n == '@': # 64
-		stack.push(stack.pop(0))
-	elif n == '\\': # 92
-		if 1 < len(stack):
-			stack.push(stack.pop(-2))
-	elif n == '^': # 94
-		stack.op(lambda a, b: a**b)
-	elif n == '~': # 126
-		stack.op(lambda a: -a)
 	elif n == '←': # 8592
 		if isinstance(stack[-1], int):
 			stack[-1] //= 10
 		else:
 			stack[-1] = float(str(stack[-1])[:-1])
-	# words
-	elif n == 'abs':
-		stack.op(abs)
-	elif n == 'acos':
-		stack.op(acos)
-	elif n == 'and':
-		stack.op(lambda a, b: a & b)
-	elif n == 'asin':
-		stack.op(asin)
-	elif n == 'atan':
-		stack.op(atan)
-	elif n == 'cos':
-		stack.op(cos)
-	elif n == 'exp':
-		stack.op(exp)
-	elif n == 'gcd':
-		stack.op(gcd)
-	elif n == 'hypot':
-		stack.op(lambda a, b: (a**2 + b**2)**.5)
-	elif n == 'ln':
-		stack.op(lambda a: log(a))
-	elif n == 'mod':
-		stack.op(lambda a, b: a % b)
-	elif n == 'not':
-		stack.op(lambda a: ~a)
-	elif n == 'or':
-		stack.op(lambda a, b: a | b)
-	elif n == 'rand':
-		stack.push(random())
-	elif n == 'sin':
-		stack.op(sin)
-	elif n == 'sqrt':
-		stack.op(lambda a: a**.5)
-	elif n == 'square':
-		stack.op(lambda a: a*a)
-	elif n == 'tan':
-		stack.op(tan)
-	elif n == 'xor':
-		stack.op(lambda a, b: a ^ b)
+	# other than special
+	elif n in symbolmap:
+		stack.op(symbolmap[n])
 	stack.clean()
 	screen_update()
 
