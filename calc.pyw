@@ -11,6 +11,7 @@ from PIL import Image, ImageTk
 # https://www.tcl.tk/man/tcl8.4/TkCmd/keysyms.htm
 
 imgsize = 400 # pixels, square
+img_filename = 'graph.png'
 
 digits = '0123456789'
 keys = [
@@ -61,6 +62,10 @@ history = []
 
 
 # functions
+def blank_graph():
+	Image.new('RGB', (imgsize,)*2, color='white').save(img_filename)
+
+
 def draw():
 	resolution = 16 # 16 w/ x*sin(1/x) -> 30ms
 	img = Image.new('RGB', (imgsize,)*2, color='white')
@@ -82,7 +87,7 @@ def draw():
 		if j in range(img.size[1]):
 			pixels[i,j] = 0, 0, 0
 	# save!~
-	img.save('graph.gif')
+	img.save(img_filename)
 
 
 def error(name: str='Error'):
@@ -339,7 +344,7 @@ def screen_update(*_):
 		except Exception as e:
 			history_screen.config(text='Function: {}'.format(e), bg='red')
 			return root.update()
-		graph_image = ImageTk.PhotoImage(Image.open("graph.gif"))
+		graph_image = ImageTk.PhotoImage(Image.open(img_filename))
 		screen.config(image=graph_image)
 		return root.update()
 	screen.config(text='\n'.join(str(i) for i in stack), bg='white')
@@ -449,7 +454,7 @@ def view_graphing(*_, **kwargs):
 	history_screen.grid(row=0, columnspan=3)
 	history_screen.configure(font=("Consolas", 12))
 	# graph screen
-	graph_image = tk.PhotoImage(file="graph.gif", master=root)
+	graph_image = tk.PhotoImage(file=img_filename, master=root)
 	screen = tk.Label(root, image=graph_image, width=imgsize, height=imgsize)
 	screen.grid(row=1, columnspan=3)
 	# screen.bind('<Button-1>', system_copy)
@@ -564,6 +569,7 @@ root = tk.Tk()
 root.title("MoCalc")
 root.resizable(False, False)
 defaultbg = root.cget('bg')
+blank_graph()
 
 # view_scientific()
 view_graphing()
