@@ -1,7 +1,6 @@
 from math import factorial, gamma, gcd
 from cmath import acos, asin, atan, cos, exp, log, sin, tan
 from random import random
-from time import sleep
 from copy import deepcopy
 import sys
 import tkinter as tk
@@ -208,10 +207,7 @@ def draw():
 
 
 def error(name: str = 'Error'):
-	print(name)
-	screen.config(text=name, bg='red')
-	root.update()
-	sleep(1)
+	status(name, 'red')
 	numpad('clear')
 
 
@@ -281,15 +277,20 @@ def screen_update(*_):
 	history_screen.config(text=' '.join(history), bg=defaultbg)
 
 
+def status(text: str, color: str):
+	from time import sleep
+	print(text)
+	history_screen.config(text=text, bg=color)
+	root.update()
+	sleep(1)
+	screen_update()
+
+
 def system_copy(*_):
 	root.clipboard_clear()
 	addendum = history_screen.cget('text') if graphing_on else str(stack[-1])
 	root.clipboard_append(addendum)
-	print('Copied.')
-	history_screen.config(text='Copied.', bg='#00ff00')
-	root.update()
-	sleep(1)
-	screen_update()
+	status('Copied.', '#00ff00')
 
 
 def system_paste(*_):
