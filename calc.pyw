@@ -141,13 +141,12 @@ def main(n: str):
 		stack[-1] = float(str(stack[-1]) + n)
 	# speshul
 	elif n == 'clear':
-		stack = [0]
-		history = []
+		stack, history = [0], []
 	elif n in {'↵', '=', 'enter', 'return'}:
 		stack.append(0)
 	# other than special
 	elif n == '!': # 33
-		if isinstance(stack[-1], int) and 0 <= stack[-1] < 2**31:
+		if isinstance(stack[-1], int):
 			stack[-1] = factorial(stack[-1])
 		else:
 			stack[-1] = gamma(stack[-1] + 1)
