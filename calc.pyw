@@ -49,13 +49,12 @@ buttons = deepcopy(keys)
 programmer_keys = deepcopy(keys)
 programmer_keys[0] = 'not and or xor ←'.split()
 key_coords = {}
-for i, row in enumerate(keys):
-	for j, k in enumerate(row):
-		key_coords[k] = i, j
+for ki, krow in enumerate(keys):
+	for kj, kk in enumerate(krow):
+		key_coords[kk] = ki, kj
 graphing_objects = []
 
 # set up vars
-
 stack = [0]
 history = []
 
@@ -65,24 +64,25 @@ def blank_graph():
 	Image.new('RGB', (imgsize,)*2, color='white').save(img_filename)
 
 
-def derivative(f, n: int=1):
+def derivative(fx, n: int = 1):
 	"""takes and returns a function of one variable"""
 	assert isinstance(n, int) and 0 < n
 	tol = 1e-6
 	n -= 1
 	if n:
-		return derivative(derivative(f, n))
-	return lambda x: (f(x+tol) - f(x)) / tol
+		return derivative(derivative(fx, n))
+	return lambda x: (fx(x+tol) - fx(x)) / tol
 
 
-def integral(f):
+def integral(fx):
 	"""takes and returns a function of one variable"""
 	res = 10
+
 	def integration(x: float):
 		s = 0
 		for i in range(res):
 			try:
-				s += (f(x-i*x/res) + f(x-(i+1)*x/res))/2 * x/res
+				s += (fx(x-i*x/res) + fx(x-(i+1)*x/res))/2 * x/res
 			except ValueError:
 				pass
 		return s
@@ -94,33 +94,34 @@ def draw():
 	img = Image.new('RGB', (imgsize,)*2, color='white')
 
 	pixels = img.load()
-	textbox_domain_min, textbox_domain_max, textbox_range_min, textbox_range_max = limits
-	domain = tuple(textbox_domain_min + (textbox_domain_max - textbox_domain_min)/(resolution*img.size[0]) * i for i in range(resolution*img.size[0]))
+	domain_min, domain_max, range_min, range_max = limits
+	pieces = resolution*img.size[0]
+	domain = tuple(domain_min + (domain_max - domain_min)/pieces * i for i in range(pieces))
 	for i, x in enumerate(domain): # col (x, increasing)
 		i //= resolution
 		try:
 			y = f(x)
 		except ZeroDivisionError: # draw vertical asym
 			for j in range(0, img.size[1], 2):
-				pixels[i,j] = 255, 0, 0
+				pixels[i, j] = 255, 0, 0
 			continue
 		except (OverflowError, ValueError):
 			continue
 		try:
 			if y.imag:
-				j = img.size[1] - round((y.imag - textbox_range_min) / (textbox_range_max - textbox_range_min) * img.size[1])
+				j = img.size[1] - round((y.imag - range_min) / (range_max - range_min) * img.size[1])
 				if j in range(img.size[1]):
-					pixels[i,j] = 255, 128, 0
-			j = img.size[1] - round((y.real - textbox_range_min) / (textbox_range_max - textbox_range_min) * img.size[1])
+					pixels[i, j] = 255, 128, 0
+			j = img.size[1] - round((y.real - range_min) / (range_max - range_min) * img.size[1])
 			if j in range(img.size[1]):
-				pixels[i,j] = 0, 0, 255
+				pixels[i, j] = 0, 0, 255
 		except (OverflowError, ValueError):
 			continue
 	# save!~
 	img.save(img_filename)
 
 
-def error(name: str='Error'):
+def error(name: str = 'Error'):
 	print(name)
 	screen.config(text=name, bg='red')
 	root.update()
@@ -414,14 +415,15 @@ def view_about():
 	help_screen.resizable(False, False)
 	tk.Label(help_screen, width=25, height=2, text='MoCalc', font=(24,)).pack()
 	tk.Label(help_screen, width=25, height=2, justify='left', text='Author: Mocha2007\nLicense: GPL-3.0').pack()
-	tk.Label(help_screen, width=25, height=3, justify='left', text='Using:\nPython {}\nPIL {}'.format(sys.version[:5], pilv)).pack()
+	versioninfo = 'Using:\nPython {}\nPIL {}'.format(sys.version[:5], pilv)
+	tk.Label(help_screen, width=25, height=3, justify='left', text=versioninfo).pack()
 
 	url_label(help_screen, mocha_url).pack()
 	url_label(help_screen, repo_url).pack()
 	tk.Label(help_screen, width=25, height=1).pack()
 
 
-def view_cez(toggle: bool=True):
+def view_cez(toggle: bool = True):
 	global clear_button, enter_button, zero_button
 	if toggle:
 		if 'clear_button' not in globals():
@@ -460,7 +462,7 @@ def view_clear():
 	graphing_objects = []
 
 
-def view_graphing(*_, **kwargs):
+def view_graphing(*_):
 	# https://stackoverflow.com/a/35024600/2579798
 	global graphing_objects, graphing_on, screen, history_screen, graph_image, gscommandlabel
 	global textbox_function, textbox_domain_min, textbox_domain_max, textbox_range_min, textbox_range_max
@@ -544,13 +546,12 @@ def view_scientific(*_, **kwargs):
 				continue
 			if mode != 'scientific' and 4 < j:
 				continue
-			buttons[i][j] = tk.Button(root, text=k, height=1, width=5, command=(lambda k: lambda: numpad(k))(k))
+			buttons[i][j] = tk.Button(root, text=k, height=1, width=5, command=(lambda x: lambda: numpad(x))(k))
 			buttons[i][j].grid(row=i+2, column=j)
 			try:
-				root.bind(k, (lambda k: lambda *_: numpad(k))(k))
+				root.bind(k, (lambda x: lambda *_: numpad(x))(k))
 			except TclError:
 				pass
-	del i, row, j, k
 	view_cez()
 	screen_update()
 	if mode == 'programmer':
@@ -561,6 +562,18 @@ def view_scientific(*_, **kwargs):
 def view_standard(*_):
 	view_scientific(mode='standard')
 
+
+# if argv
+if sys.argv[1:]:
+	if sys.argv[1] == 'graph':
+		limits = map(float, sys.argv[2:6])
+		f = eval('lambda x:'+' '.join(sys.argv[6:]))
+		draw()
+	else:
+		for arg in sys.argv[1:]:
+			numpad(arg)
+		print(stack[-1])
+	exit()
 
 # make the gui
 root = tk.Tk()
@@ -605,17 +618,6 @@ menu_help.add_command(label="About", command=view_about)
 menubar.add_cascade(label="Help", menu=menu_help)
 
 root.config(menu=menubar)
-# if argv
-if sys.argv[1:]:
-	if sys.argv[1] == 'graph':
-		limits = map(float, sys.argv[2:6])
-		f = eval('lambda x:'+' '.join(sys.argv[6:]))
-		draw()
-	else:
-		for arg in sys.argv[1:]:
-			numpad(arg)
-		print(stack[-1])
-	exit()
 # done!
 screen_update()
 root.mainloop()
