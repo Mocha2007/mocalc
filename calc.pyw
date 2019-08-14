@@ -1,5 +1,5 @@
-from math import acos, asin, atan, cos, exp, factorial, gamma, gcd, log, sin, tan
-from cmath import acos as cacos, asin as casin, atan as catan, cos as ccos, exp as cexp, log as clog, sin as csin, tan as ctan
+from math import factorial, gamma, gcd
+from cmath import acos, asin, atan, cos, exp, log, sin, tan
 from random import random
 from time import sleep
 from copy import deepcopy
@@ -137,9 +137,7 @@ def numpad(n: str):
 
 	history.append(n)
 	# easy errors
-	if n in {'acos', 'asin'} and not (-1 <= stack[-1] <= 1):
-		return error('DomainError')
-	elif n in {'cos', 'sin', 'tan'} and 2**2**9 < abs(stack[-1]):
+	if n in {'cos', 'sin', 'tan'} and 2**2**9 < abs(stack[-1]):
 		return error('OverflowError')
 	# main
 	if n in digits: # 48-57
@@ -234,10 +232,7 @@ def numpad(n: str):
 	elif n == 'abs':
 		stack[-1] = abs(stack[-1])
 	elif n == 'acos':
-		if stack[-1].imag:
-			stack[-1] = cacos(stack[-1])
-		else:
-			stack[-1] = acos(stack[-1])
+		stack[-1] = acos(stack[-1])
 	elif n == 'and':
 		if 1 < len(stack):
 			if isinstance(sum(stack[-2:]), int):
@@ -247,25 +242,14 @@ def numpad(n: str):
 		else:
 			stack[-1] = 0
 	elif n == 'asin':
-		if stack[-1].imag:
-			stack[-1] = casin(stack[-1])
-		else:
-			stack[-1] = asin(stack[-1])
+		stack[-1] = asin(stack[-1])
 	elif n == 'atan':
-		if stack[-1].imag:
-			stack[-1] = catan(stack[-1])
-		else:
-			stack[-1] = atan(stack[-1])
+		stack[-1] = atan(stack[-1])
 	elif n == 'cos':
-		if stack[-1].imag:
-			stack[-1] = ccos(stack[-1])
-		else:
-			stack[-1] = cos(stack[-1])
+		stack[-1] = cos(stack[-1])
 	elif n == 'exp':
 		if 2**9 < abs(stack[-1]):
 			error('OverflowError')
-		elif stack[-1].imag:
-			stack[-1] = cexp(stack[-1])
 		else:
 			stack[-1] = exp(stack[-1])
 	elif n == 'gcd':
@@ -278,9 +262,7 @@ def numpad(n: str):
 		if 1 < len(stack):
 			stack.append((stack.pop()**2 + stack.pop()**2)**.5)
 	elif n == 'ln':
-		if stack[-1].imag or stack[-1] < 0:
-			stack[-1] = clog(stack[-1])
-		elif stack[-1]:
+		if stack[-1]:
 			stack[-1] = log(stack[-1])
 		else:
 			error('DomainError')
@@ -308,19 +290,13 @@ def numpad(n: str):
 	elif n == 'rand':
 		stack.append(random())
 	elif n == 'sin':
-		if stack[-1].imag:
-			stack[-1] = csin(stack[-1])
-		else:
-			stack[-1] = sin(stack[-1])
+		stack[-1] = sin(stack[-1])
 	elif n == 'sqrt':
 		stack[-1] **= .5
 	elif n == 'square':
 		stack[-1] **= 2
 	elif n == 'tan':
-		if stack[-1].imag:
-			stack[-1] = ctan(stack[-1])
-		else:
-			stack[-1] = tan(stack[-1])
+		stack[-1] = tan(stack[-1])
 	elif n == 'xor':
 		if 1 < len(stack):
 			if isinstance(sum(stack[-2:]), int):
