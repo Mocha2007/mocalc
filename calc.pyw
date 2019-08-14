@@ -645,9 +645,14 @@ menubar.add_cascade(label="Help", menu=menu_help)
 root.config(menu=menubar)
 # if argv
 if sys.argv[1:]:
-	for arg in sys.argv[1:]:
-		numpad(arg)
-	print(stack[-1])
+	if sys.argv[1] == 'graph':
+		limits = map(float, sys.argv[2:6])
+		f = eval('lambda x:'+' '.join(sys.argv[6:]))
+		draw()
+	else:
+		for arg in sys.argv[1:]:
+			numpad(arg)
+		print(stack[-1])
 	exit()
 # done!
 screen_update()
