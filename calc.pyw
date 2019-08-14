@@ -344,8 +344,7 @@ def get_input(text_box: tk.Text) -> str:
 
 
 def screen_update(*_):
-	global f, graph_image
-	global limits
+	global f, graph_image, limits
 	if graphing_on:
 		history_screen.config(text='Good Input.', bg='#00ff00')
 		# f
@@ -588,7 +587,6 @@ view_scientific()
 # extra binds
 for shortcut, command in shortcuts.items():
 	root.bind(shortcut, (lambda k: lambda *_: numpad(k))(command))
-del shortcut, command
 root.bind('<Control-c>', system_copy)
 root.bind('<Control-v>', system_paste)
 root.bind('<F1>', view_help)
