@@ -10,6 +10,7 @@ from PIL import Image, ImageTk, __version__ as pilv
 
 imgsize = 400 # pixels, square
 img_filename = 'graph.png'
+root = tk.Tk()
 
 digits = '0123456789'
 keys = [
@@ -78,7 +79,7 @@ symbolmap = {
 	'tan': tan,
 	'xor': lambda a, b: a ^ b,
 }
-buttons = deepcopy(keys)
+buttons = [[tk.Button(root) for _ in row] for row in keys]
 programmer_keys = deepcopy(keys)
 programmer_keys[0] = 'not and or xor ←'.split()
 key_coords = {}
@@ -482,7 +483,6 @@ if sys.argv[1:]:
 	exit()
 
 # make the gui
-root = tk.Tk()
 root.title("MoCalc")
 root.resizable(False, False)
 defaultbg = root.cget('bg')
