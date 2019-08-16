@@ -483,6 +483,8 @@ if sys.argv[1:]:
 	exit()
 
 # make the gui
+directory = '/'.join(__file__.split('\\')[:-1])
+root.iconbitmap(directory + '/calc.ico')
 root.title("MoCalc")
 root.resizable(False, False)
 defaultbg = root.cget('bg')
