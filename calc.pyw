@@ -175,6 +175,11 @@ def integral(fx):
 	return integration
 
 
+def integral_d(fx, lower: complex, upper: complex) -> complex:
+	"""outs the val not an f like integral"""
+	return integral(fx)(upper) - integral(fx)(lower)
+
+
 def draw():
 	resolution = 16 # 16 w/ x*sin(1/x) -> 30ms
 	img = Image.new('RGB', (imgsize,)*2, color='white')
