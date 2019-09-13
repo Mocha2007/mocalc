@@ -72,6 +72,7 @@ symbolmap = {
 	'exp': exp,
 	'gcd': gcd,
 	'hypot': lambda a, b: (a**2 + b**2)**.5,
+	'invol1': lambda a: log((exp(a)+1)/(exp(a)-1)), # example of an involution
 	'ln': lambda a: log(a),
 	'mod': lambda a, b: a % b,
 	'not': lambda a: ~a,
@@ -224,7 +225,7 @@ def error(name: str = 'Error'):
 def numpad(n: str):
 	global history, stack
 
-	if graphing_on:
+	if not has_argv and graphing_on:
 		return screen_update()
 
 	history.append(n)
@@ -257,6 +258,8 @@ def get_input(text_box: tk.Text) -> str:
 
 def screen_update(*_):
 	global f, graph_image, limits
+	if has_argv:
+		return
 	if graphing_on:
 		history_screen.config(text='Good Input.', bg='#00ff00')
 		# f
@@ -479,8 +482,10 @@ def view_standard(*_):
 	view_scientific(mode='standard')
 
 
+# MAIN
 # if argv
 if sys.argv[1:]:
+	has_argv = True
 	if sys.argv[1] == 'graph':
 		limits = map(float, sys.argv[2:6])
 		f = eval('lambda x:'+' '.join(sys.argv[6:]))
@@ -490,6 +495,7 @@ if sys.argv[1:]:
 			numpad(arg)
 		print(stack[-1])
 	exit()
+has_argv = False
 
 # make the gui
 root.iconbitmap('calc.ico')
