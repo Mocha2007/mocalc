@@ -74,6 +74,7 @@ symbolmap = {
 	'hypot': lambda a, b: (a**2 + b**2)**.5,
 	'invol1': lambda a: log((exp(a)+1)/(exp(a)-1)), # example of an involution
 	'ln': lambda a: log(a),
+	'mochahash': lambda a, b: log(exp(a)+exp(b)),
 	'mod': lambda a, b: a % b,
 	'not': lambda a: ~a,
 	'or': lambda a, b: a | b,
