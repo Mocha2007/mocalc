@@ -26,6 +26,8 @@ shortcuts = {
 	'<Delete>': 'clear',
 	'<Key-0>': '0',
 	'#': 'rand',
+	'(': '(',
+	')': ')',
 	'&': 'and',
 	'C': 'acos',
 	'S': 'asin',
@@ -49,6 +51,8 @@ symbolmap = {
 	'!': lambda a: factorial(a) if isinstance(a, int) else gamma(a+1),
 	'$': lambda a: stack[a],
 	'%': lambda a: a/100 * stack[-1],
+	'(': lambda a: a/10, # move decimal left
+	')': lambda a: a*10, # move decimal right
 	'*': lambda a, b: a*b,
 	'+': lambda a, b: a+b,
 	'-': lambda a, b: a-b,

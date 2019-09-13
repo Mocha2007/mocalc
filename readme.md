@@ -19,6 +19,7 @@ Let a be the top of the stack, b be the next item down, and so on.
 |ENTER|enter, =|push 0 to stack
 |CLEAR|delete|clear all
 |←|backspace|backspace
+|`[none]`|()|Move decimal left/right
 |+-*/^|+-*/^|basic arithmetic functions
 |%|%|a% of b
 |~|~|negation of a
@@ -30,7 +31,7 @@ Let a be the top of the stack, b be the next item down, and so on.
 |\\|\\|swap a and b
 |not|n|bitwise not
 |and|&|bitwise and
-|or|\||bitwise or
+|or|`[pipe]`|bitwise or
 |xor|x|bitwise xor
 |abs|a|absolute value of a
 |rand|#|random number in unit interval
